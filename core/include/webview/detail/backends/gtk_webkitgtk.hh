@@ -340,7 +340,7 @@ private:
   GtkWidget *m_window{};
   GtkWidget *m_webview{};
   WebKitUserContentManager *m_user_content_manager{};
-  bool m_stop_run_loop{};
+  static inline bool m_stop_run_loop{};
   bool m_is_window_shown{};
 };
 
