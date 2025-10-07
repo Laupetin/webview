@@ -792,9 +792,7 @@ private:
       return error_info{WEBVIEW_ERROR_UNSPECIFIED,
                         "put_IsStatusBarEnabled failed"};
     }
-    add_init_script("function(message) {\n\
-  return window.chrome.webview.postMessage(message);\n\
-}");
+    add_init_script("(message) => window.chrome.webview.postMessage(message)");
     resize_webview();
     m_controller->put_IsVisible(TRUE);
     ShowWindow(m_widget, SW_SHOW);

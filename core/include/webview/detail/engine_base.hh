@@ -39,6 +39,7 @@
 #include <list>
 #include <map>
 #include <string>
+#include <sstream>
 
 namespace webview {
 namespace detail {
@@ -93,10 +94,7 @@ public:
     replace_bind_script();
     // Notify that a binding was created if the init script has already
     // set things up.
-    eval("if (window.__webview__) {\n\
-window.__webview__.onBind(" +
-         json_escape(name) + ")\n\
-}");
+    eval("(function{window.__webview_internal?.onBind(" + json_escape(name) + ");})();");
     return {};
   }
 
@@ -109,10 +107,8 @@ window.__webview__.onBind(" +
     replace_bind_script();
     // Notify that a binding was created if the init script has already
     // set things up.
-    eval("if (window.__webview__) {\n\
-window.__webview__.onUnbind(" +
-         json_escape(name) + ")\n\
-}");
+    eval("(function{window.__webview_internal?.onUnbind(" + json_escape(name) +
+         ");})();");
     return {};
   }
 
@@ -121,12 +117,10 @@ window.__webview__.onUnbind(" +
     // NOLINTNEXTLINE(modernize-avoid-bind): Lambda with move requires C++14
     return dispatch(std::bind(
         [id, status, this](std::string escaped_result) {
-          std::string js = "window.__webview__.onReply(" + json_escape(id) +
-                           ", " + std::to_string(status) + ", " +
-                           escaped_result + ")";
-          eval(js);
+          eval("(function(){window.__webview_internal.onReply(" + id + "," +
+               std::to_string(status) + "," + escaped_result + ");})();");
         },
-        result.empty() ? "undefined" : json_escape(result)));
+        result.empty() ? "undefined" : result));
   }
 
   result<void *> window() { return window_impl(); }
@@ -208,97 +202,93 @@ protected:
   }
 
   std::string create_init_script(const std::string &post_fn) {
-    auto js = std::string{} + "(function() {\n\
-  'use strict';\n\
-  function generateId() {\n\
-    var crypto = window.crypto || window.msCrypto;\n\
-    var bytes = new Uint8Array(16);\n\
-    crypto.getRandomValues(bytes);\n\
-    return Array.prototype.slice.call(bytes).map(function(n) {\n\
-      var s = n.toString(16);\n\
-      return ((s.length % 2) == 1 ? '0' : '') + s;\n\
-    }).join('');\n\
-  }\n\
-  var Webview = (function() {\n\
-    var _promises = {};\n\
-    function Webview_() {}\n\
-    Webview_.prototype.post = function(message) {\n\
-      return (" +
-              post_fn + ")(message);\n\
-    };\n\
-    Webview_.prototype.call = function(method) {\n\
-      var _id = generateId();\n\
-      var _params = Array.prototype.slice.call(arguments, 1);\n\
-      var promise = new Promise(function(resolve, reject) {\n\
-        _promises[_id] = { resolve, reject };\n\
-      });\n\
-      this.post(JSON.stringify({\n\
-        id: _id,\n\
-        method: method,\n\
-        params: _params\n\
-      }));\n\
-      return promise;\n\
-    };\n\
-    Webview_.prototype.onReply = function(id, status, result) {\n\
-      var promise = _promises[id];\n\
-      if (result !== undefined) {\n\
-        try {\n\
-          result = JSON.parse(result);\n\
-        } catch (e) {\n\
-          promise.reject(new Error(\"Failed to parse binding result as JSON\"));\n\
-          return;\n\
-        }\n\
-      }\n\
-      if (status === 0) {\n\
-        promise.resolve(result);\n\
-      } else {\n\
-        promise.reject(result);\n\
-      }\n\
-    };\n\
-    Webview_.prototype.onBind = function(name) {\n\
-      if (window.hasOwnProperty(name)) {\n\
-        throw new Error('Property \"' + name + '\" already exists');\n\
-      }\n\
-      window[name] = (function() {\n\
-        var params = [name].concat(Array.prototype.slice.call(arguments));\n\
-        return Webview_.prototype.call.apply(this, params);\n\
-      }).bind(this);\n\
-    };\n\
-    Webview_.prototype.onUnbind = function(name) {\n\
-      if (!window.hasOwnProperty(name)) {\n\
-        throw new Error('Property \"' + name + '\" does not exist');\n\
-      }\n\
-      delete window[name];\n\
-    };\n\
-    return Webview_;\n\
-  })();\n\
-  window.__webview__ = new Webview();\n\
-})()";
-    return js;
+
+    return std::string(R"INIT_SCRIPT(
+(function() {
+  const postFunc = )INIT_SCRIPT") + post_fn +  R"INIT_SCRIPT(;
+  let callKey = 0;
+  const promises = {};
+  const binds = {};
+
+  function call(method, ...params) {
+    const id = ++callKey;
+    const promise = new Promise((resolve, reject) => {
+      promises[id] = { resolve, reject };
+    });
+
+    postFunc(
+      JSON.stringify({
+        id,
+        method,
+        params,
+      })
+    );
+
+    return promise;
+  }
+
+  function onBind(name) {
+    if (binds[name]) {
+      throw new Error('Bind "' + name + '" already exists');
+    }
+
+    binds[name] = (...params) => call(name, ...params);
+  }
+
+  function onUnbind(name) {
+    if (!binds[name]) {
+      throw new Error('Bind "' + name + '" does not exist');
+    }
+
+    delete binds[name];
+  }
+
+  function onReply(id, status, result) {
+    const promise = promises[id];
+    delete promises[id];
+
+    if (status === 0) {
+      promise.resolve(result);
+    } else {
+      promise.reject(result);
+    }
+  }
+
+  window.__webview_internal = Object.freeze({
+    call,
+    onReply,
+    onBind,
+    onUnbind,
+  });
+
+  window.webview_binds = binds;
+})();
+)INIT_SCRIPT";
   }
 
   std::string create_bind_script() {
-    std::string js_names = "[";
+    std::ostringstream js_names;
+
+    js_names << '[';
     bool first = true;
     for (const auto &binding : bindings) {
       if (first) {
         first = false;
       } else {
-        js_names += ",";
+        js_names << ',';
       }
-      js_names += json_escape(binding.first);
+      js_names << json_escape(binding.first);
     }
-    js_names += "]";
+    js_names << ']';
 
-    auto js = std::string{} + "(function() {\n\
-  'use strict';\n\
-  var methods = " +
-              js_names + ";\n\
-  methods.forEach(function(name) {\n\
-    window.__webview__.onBind(name);\n\
-  });\n\
-})()";
-    return js;
+    return std::string(R"INIT_SCRIPT(
+  (function() {
+    const methods = )INIT_SCRIPT") + js_names.str() + R"INIT_SCRIPT(
+    methods.forEach((name) => {
+      window.__webview_internal.onBind(name);
+    });
+  })();
+    )INIT_SCRIPT";
   }
 
   virtual void on_message(const std::string &msg) {
