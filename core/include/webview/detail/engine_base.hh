@@ -274,7 +274,7 @@ protected:
     listeners.forEach((listener) => listener(payload));
   }
 
-  function webViewAddEventListener(eventKey, fn) {
+  function webviewAddEventListener(eventKey, fn) {
     let listeners = eventListeners[eventKey];
     if (listeners) {
       listeners.push(fn);
@@ -283,7 +283,7 @@ protected:
     }
   }
 
-  function webViewRemoveEventListener(eventKey, fn) {
+  function webviewRemoveEventListener(eventKey, fn) {
     const listeners = eventListeners[eventKey];
     if (!listeners) {
       return;
@@ -307,8 +307,8 @@ protected:
   });
 
   window.webviewBinds = binds;
-  window.webViewAddEventListener = webViewAddEventListener;
-  window.webViewRemoveEventListener = webViewRemoveEventListener;
+  window.webviewAddEventListener = webviewAddEventListener;
+  window.webviewRemoveEventListener = webviewRemoveEventListener;
 })();
 )INIT_SCRIPT";
   }
