@@ -123,6 +123,16 @@ public:
         result.empty() ? "undefined" : result));
   }
 
+  noresult notify(const std::string &event_key, const std::string &result) {
+    // NOLINTNEXTLINE(modernize-avoid-bind): Lambda with move requires C++14
+    return dispatch(std::bind(
+        [this](std::string escaped_key, std::string escaped_result) {
+          eval("(function(){window.__webview_internal.onNotify(" + escaped_key +
+               "," + escaped_result + ");})();");
+        },
+        json_escape(event_key), result.empty() ? "undefined" : result));
+  }
+
   result<void *> window() { return window_impl(); }
   result<void *> widget() { return widget_impl(); }
   result<void *> browser_controller() { return browser_controller_impl(); }
@@ -209,6 +219,7 @@ protected:
   let callKey = 0;
   const promises = {};
   const binds = {};
+  const eventListeners = {};
 
   function call(method, ...params) {
     const id = ++callKey;
@@ -254,14 +265,50 @@ protected:
     }
   }
 
+  function onNotify(eventKey, payload) {
+    const listeners = eventListeners[eventKey];
+    if (!listeners) {
+      return;
+    }
+
+    listeners.forEach((listener) => listener(payload));
+  }
+
+  function webViewAddEventListener(eventKey, fn) {
+    let listeners = eventListeners[eventKey];
+    if (listeners) {
+      listeners.push(fn);
+    } else {
+      eventListeners[eventKey] = [fn];
+    }
+  }
+
+  function webViewRemoveEventListener(eventKey, fn) {
+    const listeners = eventListeners[eventKey];
+    if (!listeners) {
+      return;
+    }
+
+    const fnIndex = listeners.indexOf(fn);
+    if (fnIndex >= 0) {
+      listeners.splice(fnIndex, 1);
+      return true;
+    }
+
+    return false;
+  }
+
   window.__webview_internal = Object.freeze({
     call,
     onReply,
     onBind,
     onUnbind,
+    onNotify,
   });
 
-  window.webview_binds = binds;
+  window.webviewBinds = binds;
+  window.webViewAddEventListener = webViewAddEventListener;
+  window.webViewRemoveEventListener = webViewRemoveEventListener;
 })();
 )INIT_SCRIPT";
   }
