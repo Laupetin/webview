@@ -16,8 +16,9 @@
 #include <stdint.h>
 #endif
 
-typedef struct EventRegistrationToken {
-  int64_t value;
+typedef struct EventRegistrationToken
+{
+    int64_t value;
 } EventRegistrationToken;
 #endif // __eventtoken_h__
 

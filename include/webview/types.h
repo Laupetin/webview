@@ -27,55 +27,59 @@
 #define WEBVIEW_TYPES_H
 
 /// Holds the elements of a MAJOR.MINOR.PATCH version number.
-typedef struct {
-  /// Major version.
-  unsigned int major;
-  /// Minor version.
-  unsigned int minor;
-  /// Patch version.
-  unsigned int patch;
+typedef struct
+{
+    /// Major version.
+    unsigned int major;
+    /// Minor version.
+    unsigned int minor;
+    /// Patch version.
+    unsigned int patch;
 } webview_version_t;
 
 /// Holds the library's version information.
-typedef struct {
-  /// The elements of the version number.
-  webview_version_t version;
-  /// SemVer 2.0.0 version number in MAJOR.MINOR.PATCH format.
-  char version_number[32];
-  /// SemVer 2.0.0 pre-release labels prefixed with "-" if specified, otherwise
-  /// an empty string.
-  char pre_release[48];
-  /// SemVer 2.0.0 build metadata prefixed with "+", otherwise an empty string.
-  char build_metadata[48];
+typedef struct
+{
+    /// The elements of the version number.
+    webview_version_t version;
+    /// SemVer 2.0.0 version number in MAJOR.MINOR.PATCH format.
+    char version_number[32];
+    /// SemVer 2.0.0 pre-release labels prefixed with "-" if specified, otherwise
+    /// an empty string.
+    char pre_release[48];
+    /// SemVer 2.0.0 build metadata prefixed with "+", otherwise an empty string.
+    char build_metadata[48];
 } webview_version_info_t;
 
 /// Pointer to a webview instance.
-typedef void *webview_t;
+typedef void* webview_t;
 
 /// Native handle kind. The actual type depends on the backend.
-typedef enum {
-  /// Top-level window. @c GtkWindow pointer (GTK), @c NSWindow pointer (Cocoa)
-  /// or @c HWND (Win32).
-  WEBVIEW_NATIVE_HANDLE_KIND_UI_WINDOW,
-  /// Browser widget. @c GtkWidget pointer (GTK), @c NSView pointer (Cocoa) or
-  /// @c HWND (Win32).
-  WEBVIEW_NATIVE_HANDLE_KIND_UI_WIDGET,
-  /// Browser controller. @c WebKitWebView pointer (WebKitGTK), @c WKWebView
-  /// pointer (Cocoa/WebKit) or @c ICoreWebView2Controller pointer
-  /// (Win32/WebView2).
-  WEBVIEW_NATIVE_HANDLE_KIND_BROWSER_CONTROLLER
+typedef enum
+{
+    /// Top-level window. @c GtkWindow pointer (GTK), @c NSWindow pointer (Cocoa)
+    /// or @c HWND (Win32).
+    WEBVIEW_NATIVE_HANDLE_KIND_UI_WINDOW,
+    /// Browser widget. @c GtkWidget pointer (GTK), @c NSView pointer (Cocoa) or
+    /// @c HWND (Win32).
+    WEBVIEW_NATIVE_HANDLE_KIND_UI_WIDGET,
+    /// Browser controller. @c WebKitWebView pointer (WebKitGTK), @c WKWebView
+    /// pointer (Cocoa/WebKit) or @c ICoreWebView2Controller pointer
+    /// (Win32/WebView2).
+    WEBVIEW_NATIVE_HANDLE_KIND_BROWSER_CONTROLLER
 } webview_native_handle_kind_t;
 
 /// Window size hints
-typedef enum {
-  /// Width and height are default size.
-  WEBVIEW_HINT_NONE,
-  /// Width and height are minimum bounds.
-  WEBVIEW_HINT_MIN,
-  /// Width and height are maximum bounds.
-  WEBVIEW_HINT_MAX,
-  /// Window size can not be changed by a user.
-  WEBVIEW_HINT_FIXED
+typedef enum
+{
+    /// Width and height are default size.
+    WEBVIEW_HINT_NONE,
+    /// Width and height are minimum bounds.
+    WEBVIEW_HINT_MIN,
+    /// Width and height are maximum bounds.
+    WEBVIEW_HINT_MAX,
+    /// Window size can not be changed by a user.
+    WEBVIEW_HINT_FIXED
 } webview_hint_t;
 
 #endif // WEBVIEW_TYPES_H

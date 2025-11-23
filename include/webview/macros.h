@@ -113,8 +113,7 @@
 #endif
 
 #ifndef WEBVIEW_DEPRECATED_PRIVATE
-#define WEBVIEW_DEPRECATED_PRIVATE                                             \
-  WEBVIEW_DEPRECATED("Private API should not be used")
+#define WEBVIEW_DEPRECATED_PRIVATE WEBVIEW_DEPRECATED("Private API should not be used")
 #endif
 
 #endif // WEBVIEW_HEADER
