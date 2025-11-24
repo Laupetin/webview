@@ -26,7 +26,12 @@
 #ifndef WEBVIEW_H
 #define WEBVIEW_H
 
-#include "api.h"
-#include "c_api_impl.hh"
+#include "backends.hh"
+#include "errors.h"
+#include "errors.hh"
+#include "json_deprecated.hh"
+#include "macros.h"
+#include "types.h"
+#include "version.h"
 
 #endif // WEBVIEW_H
