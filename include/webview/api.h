@@ -40,7 +40,7 @@ extern "C"
      *
      * @param debug Enable developer tools if supported by the backend.
      * @param window Optional native window handle, i.e. @c GtkWindow pointer
-     *        @c NSWindow pointer (Cocoa) or @c HWND (Win32). If non-null,
+     *        @c HWND (Win32). If non-null,
      *        the webview widget is embedded into the given window, and the
      *        caller is expected to assume responsibility for the window as
      *        well as application lifecycle. If the window handle is null,
@@ -97,8 +97,7 @@ extern "C"
 
     /**
      * Returns the native handle of the window associated with the webview instance.
-     * The handle can be a @c GtkWindow pointer (GTK), @c NSWindow pointer (Cocoa)
-     * or @c HWND (Win32).
+     * The handle can be a @c GtkWindow pointer (GTK) or @c HWND (Win32).
      *
      * @param w The webview instance.
      * @return The handle of the native window.

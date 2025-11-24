@@ -57,14 +57,12 @@ typedef void* webview_t;
 /// Native handle kind. The actual type depends on the backend.
 typedef enum
 {
-    /// Top-level window. @c GtkWindow pointer (GTK), @c NSWindow pointer (Cocoa)
-    /// or @c HWND (Win32).
+    /// Top-level window. @c GtkWindow pointer (GTK) or @c HWND (Win32).
     WEBVIEW_NATIVE_HANDLE_KIND_UI_WINDOW,
-    /// Browser widget. @c GtkWidget pointer (GTK), @c NSView pointer (Cocoa) or
-    /// @c HWND (Win32).
+    /// Browser widget. @c GtkWidget pointer (GTK) or @c HWND (Win32).
     WEBVIEW_NATIVE_HANDLE_KIND_UI_WIDGET,
-    /// Browser controller. @c WebKitWebView pointer (WebKitGTK), @c WKWebView
-    /// pointer (Cocoa/WebKit) or @c ICoreWebView2Controller pointer
+    /// Browser controller. @c WebKitWebView pointer (WebKitGTK) or 
+    /// @c ICoreWebView2Controller pointer
     /// (Win32/WebView2).
     WEBVIEW_NATIVE_HANDLE_KIND_BROWSER_CONTROLLER
 } webview_native_handle_kind_t;
