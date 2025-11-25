@@ -46,70 +46,105 @@
  */
 typedef enum
 {
-    /// Missing dependency.
-    WEBVIEW_ERROR_MISSING_DEPENDENCY = -5,
-    /// Operation canceled.
-    WEBVIEW_ERROR_CANCELED = -4,
-    /// Invalid state detected.
-    WEBVIEW_ERROR_INVALID_STATE = -3,
-    /// One or more invalid arguments have been specified e.g. in a function call.
-    WEBVIEW_ERROR_INVALID_ARGUMENT = -2,
-    /// An unspecified error occurred. A more specific error code may be needed.
-    WEBVIEW_ERROR_UNSPECIFIED = -1,
-    /// OK/Success. Functions that return error codes will typically return this
-    /// to signify successful operations.
-    WEBVIEW_ERROR_OK = 0,
-    /// Signifies that something already exists.
-    WEBVIEW_ERROR_DUPLICATE = 1,
-    /// Signifies that something does not exist.
-    WEBVIEW_ERROR_NOT_FOUND = 2
+  /// Missing dependency.
+  WEBVIEW_ERROR_MISSING_DEPENDENCY = -5,
+  /// Operation canceled.
+  WEBVIEW_ERROR_CANCELED = -4,
+  /// Invalid state detected.
+  WEBVIEW_ERROR_INVALID_STATE = -3,
+  /// One or more invalid arguments have been specified e.g. in a function call.
+  WEBVIEW_ERROR_INVALID_ARGUMENT = -2,
+  /// An unspecified error occurred. A more specific error code may be needed.
+  WEBVIEW_ERROR_UNSPECIFIED = -1,
+  /// OK/Success. Functions that return error codes will typically return this
+  /// to signify successful operations.
+  WEBVIEW_ERROR_OK = 0,
+  /// Signifies that something already exists.
+  WEBVIEW_ERROR_DUPLICATE = 1,
+  /// Signifies that something does not exist.
+  WEBVIEW_ERROR_NOT_FOUND = 2
 } webview_error_t;
 
-namespace webview {
+namespace webview
+{
 
-class error_info {
+  class error_info
+  {
 public:
-  error_info(webview_error_t code, const std::string &message = {}) noexcept
-      : m_code{code}, m_message{message} {}
-  error_info() = default;
+    error_info(webview_error_t code, const std::string& message = {}) noexcept
+        : m_code{code},
+          m_message{message}
+    {
+    }
 
-  webview_error_t code() const { return m_code; }
-  const std::string &message() const { return m_message; }
+    error_info() = default;
+
+    webview_error_t code() const
+    {
+      return m_code;
+    }
+
+    const std::string& message() const
+    {
+      return m_message;
+    }
 
 private:
-  webview_error_t m_code{WEBVIEW_ERROR_UNSPECIFIED};
-  std::string m_message;
-};
+    webview_error_t m_code{WEBVIEW_ERROR_UNSPECIFIED};
+    std::string m_message;
+  };
 
-class exception : public std::exception {
+  class exception : public std::exception
+  {
 public:
-  exception(webview_error_t code, const std::string &message,
-            std::exception_ptr cause) noexcept
-      : exception{error_info{code, message}, cause} {}
+    exception(webview_error_t code, const std::string& message, std::exception_ptr cause) noexcept
+        : exception{
+              error_info{code, message},
+              cause
+    }
+    {
+    }
 
-  exception(webview_error_t code, const std::string &message) noexcept
-      : exception{error_info{code, message}} {}
+    exception(webview_error_t code, const std::string& message) noexcept
+        : exception{
+              error_info{code, message}
+    }
+    {
+    }
 
-  exception(const error_info &error, std::exception_ptr cause) noexcept
-      : m_error{error},
-        // NOLINTNEXTLINE(bugprone-throw-keyword-missing)
-        m_cause{cause} {}
+    exception(const error_info& error, std::exception_ptr cause) noexcept
+        : m_error{error},
+          // NOLINTNEXTLINE(bugprone-throw-keyword-missing)
+          m_cause{cause}
+    {
+    }
 
-  exception(const error_info &error) noexcept : m_error{error} {}
+    exception(const error_info& error) noexcept
+        : m_error{error}
+    {
+    }
 
-  exception() = default;
+    exception() = default;
 
-  const error_info &error() const { return m_error; }
-  std::exception_ptr cause() const { return m_cause; }
+    const error_info& error() const
+    {
+      return m_error;
+    }
 
-  const char *what() const noexcept override {
-    return m_error.message().c_str();
-  }
+    std::exception_ptr cause() const
+    {
+      return m_cause;
+    }
+
+    const char* what() const noexcept override
+    {
+      return m_error.message().c_str();
+    }
 
 private:
-  error_info m_error{WEBVIEW_ERROR_UNSPECIFIED};
-  std::exception_ptr m_cause;
-};
+    error_info m_error{WEBVIEW_ERROR_UNSPECIFIED};
+    std::exception_ptr m_cause;
+  };
 
 } // namespace webview
 

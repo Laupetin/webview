@@ -58,8 +58,8 @@
 
 /// SemVer 2.0.0 version number in MAJOR.MINOR.PATCH format.
 #define WEBVIEW_VERSION_NUMBER                                                                                                                                 \
-    WEBVIEW_EXPAND_AND_STRINGIFY(WEBVIEW_VERSION_MAJOR)                                                                                                        \
-    "." WEBVIEW_EXPAND_AND_STRINGIFY(WEBVIEW_VERSION_MINOR) "." WEBVIEW_EXPAND_AND_STRINGIFY(WEBVIEW_VERSION_PATCH)
+  WEBVIEW_EXPAND_AND_STRINGIFY(WEBVIEW_VERSION_MAJOR)                                                                                                          \
+  "." WEBVIEW_EXPAND_AND_STRINGIFY(WEBVIEW_VERSION_MINOR) "." WEBVIEW_EXPAND_AND_STRINGIFY(WEBVIEW_VERSION_PATCH)
 
 /// @}
 

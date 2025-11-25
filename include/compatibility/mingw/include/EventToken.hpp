@@ -18,7 +18,7 @@
 
 typedef struct EventRegistrationToken
 {
-    int64_t value;
+  int64_t value;
 } EventRegistrationToken;
 #endif // __eventtoken_h__
 

@@ -33,9 +33,8 @@
 #if defined(WEBVIEW_PLATFORM_LINUX) && defined(WEBVIEW_GTK)
 
 #include <functional>
-#include <string>
-
 #include <gtk/gtk.h>
+#include <string>
 
 #if GTK_MAJOR_VERSION >= 4
 
@@ -57,84 +56,89 @@
 
 #endif
 
-namespace webview {
-namespace detail {
+namespace webview
+{
+  namespace detail
+  {
 
-/**
- * WebKitGTK compatibility helper class.
- */
-class webkitgtk_compat {
-public:
+    /**
+     * WebKitGTK compatibility helper class.
+     */
+    class webkitgtk_compat
+    {
+  public:
 #if GTK_MAJOR_VERSION >= 4
-  using wk_handler_js_value_t = JSCValue;
+      using wk_handler_js_value_t = JSCValue;
 #else
-  using wk_handler_js_value_t = WebKitJavascriptResult;
+      using wk_handler_js_value_t = WebKitJavascriptResult;
 #endif
 
-  using on_script_message_received_t =
-      std::function<void(WebKitUserContentManager *, const std::string &)>;
-  static void
-  connect_script_message_received(WebKitUserContentManager *manager,
-                                  const std::string &handler_name,
-                                  on_script_message_received_t handler) {
-    std::string signal_name = "script-message-received::";
-    signal_name += handler_name;
+      using on_script_message_received_t = std::function<void(WebKitUserContentManager*, const std::string&)>;
 
-    auto callback = +[](WebKitUserContentManager *manager,
-                        wk_handler_js_value_t *r, gpointer arg) {
-      auto *handler = static_cast<on_script_message_received_t *>(arg);
-      (*handler)(manager, get_string_from_js_result(r));
-    };
+      static void connect_script_message_received(WebKitUserContentManager* manager, const std::string& handler_name, on_script_message_received_t handler)
+      {
+        std::string signal_name = "script-message-received::";
+        signal_name += handler_name;
 
-    auto deleter = +[](gpointer data, GClosure *) {
-      delete static_cast<on_script_message_received_t *>(data);
-    };
+        auto callback = +[](WebKitUserContentManager* manager, wk_handler_js_value_t* r, gpointer arg)
+        {
+          auto* handler = static_cast<on_script_message_received_t*>(arg);
+          (*handler)(manager, get_string_from_js_result(r));
+        };
 
-    g_signal_connect_data(manager, signal_name.c_str(), G_CALLBACK(callback),
-                          new on_script_message_received_t{handler}, deleter,
-                          static_cast<GConnectFlags>(0) /*G_CONNECT_DEFAULT*/);
-  }
+        auto deleter = +[](gpointer data, GClosure*)
+        {
+          delete static_cast<on_script_message_received_t*>(data);
+        };
 
-  static std::string get_string_from_js_result(JSCValue *r) {
-    char *cs = jsc_value_to_string(r);
-    std::string s{cs};
-    g_free(cs);
-    return s;
-  }
+        g_signal_connect_data(manager,
+                              signal_name.c_str(),
+                              G_CALLBACK(callback),
+                              new on_script_message_received_t{handler},
+                              deleter,
+                              static_cast<GConnectFlags>(0) /*G_CONNECT_DEFAULT*/);
+      }
+
+      static std::string get_string_from_js_result(JSCValue* r)
+      {
+        char* cs = jsc_value_to_string(r);
+        std::string s{cs};
+        g_free(cs);
+        return s;
+      }
 
 #if GTK_MAJOR_VERSION < 4
-  static std::string get_string_from_js_result(WebKitJavascriptResult *r) {
-#if (WEBKIT_MAJOR_VERSION == 2 && WEBKIT_MINOR_VERSION >= 22) ||               \
-    WEBKIT_MAJOR_VERSION > 2
-    JSCValue *value = webkit_javascript_result_get_js_value(r);
-    return get_string_from_js_result(value);
+      static std::string get_string_from_js_result(WebKitJavascriptResult* r)
+      {
+#if (WEBKIT_MAJOR_VERSION == 2 && WEBKIT_MINOR_VERSION >= 22) || WEBKIT_MAJOR_VERSION > 2
+        JSCValue* value = webkit_javascript_result_get_js_value(r);
+        return get_string_from_js_result(value);
 #else
-    JSGlobalContextRef ctx = webkit_javascript_result_get_global_context(r);
-    JSValueRef value = webkit_javascript_result_get_value(r);
-    JSStringRef js = JSValueToStringCopy(ctx, value, nullptr);
-    size_t n = JSStringGetMaximumUTF8CStringSize(js);
-    char *cs = g_new(char, n);
-    JSStringGetUTF8CString(js, cs, n);
-    JSStringRelease(js);
-    std::string s{cs};
-    g_free(cs);
-    return s;
+        JSGlobalContextRef ctx = webkit_javascript_result_get_global_context(r);
+        JSValueRef value = webkit_javascript_result_get_value(r);
+        JSStringRef js = JSValueToStringCopy(ctx, value, nullptr);
+        size_t n = JSStringGetMaximumUTF8CStringSize(js);
+        char* cs = g_new(char, n);
+        JSStringGetUTF8CString(js, cs, n);
+        JSStringRelease(js);
+        std::string s{cs};
+        g_free(cs);
+        return s;
 #endif
-  }
+      }
 #endif
 
-  static void user_content_manager_register_script_message_handler(
-      WebKitUserContentManager *manager, const gchar *name) {
+      static void user_content_manager_register_script_message_handler(WebKitUserContentManager* manager, const gchar* name)
+      {
 #if GTK_MAJOR_VERSION >= 4
-    webkit_user_content_manager_register_script_message_handler(manager, name,
-                                                                nullptr);
+        webkit_user_content_manager_register_script_message_handler(manager, name, nullptr);
 #else
-    webkit_user_content_manager_register_script_message_handler(manager, name);
+        webkit_user_content_manager_register_script_message_handler(manager, name);
 #endif
-  }
-};
+      }
+    };
 
-} // namespace detail
+  } // namespace detail
 } // namespace webview
 
 #endif // defined(WEBVIEW_PLATFORM_LINUX) && defined(WEBVIEW_GTK)

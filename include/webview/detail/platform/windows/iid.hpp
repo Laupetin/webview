@@ -36,41 +36,44 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-#include <windows.h>
-
 #include <objbase.h>
+#include <windows.h>
 
 #ifdef _MSC_VER
 #pragma comment(lib, "ole32.lib")
 #endif
 
-namespace webview {
-namespace detail {
+namespace webview
+{
+  namespace detail
+  {
 
-template <typename T> struct cast_info_t {
-  using type = T;
-  IID iid;
-};
+    template<typename T> struct cast_info_t
+    {
+      using type = T;
+      IID iid;
+    };
 
-// Checks whether the specified IID equals the IID of the specified type and
-// if so casts the "this" pointer to T and returns it. Returns nullptr on
-// mismatching IIDs.
-// If ppv is specified then the pointer will also be assigned to *ppv.
-template <typename From, typename To>
-To *cast_if_equal_iid(From *from, REFIID riid, const cast_info_t<To> &info,
-                      LPVOID *ppv = nullptr) noexcept {
-  To *ptr = nullptr;
-  if (IsEqualIID(riid, info.iid)) {
-    ptr = static_cast<To *>(from);
-    ptr->AddRef();
-  }
-  if (ppv) {
-    *ppv = ptr;
-  }
-  return ptr;
-}
+    // Checks whether the specified IID equals the IID of the specified type and
+    // if so casts the "this" pointer to T and returns it. Returns nullptr on
+    // mismatching IIDs.
+    // If ppv is specified then the pointer will also be assigned to *ppv.
+    template<typename From, typename To> To* cast_if_equal_iid(From* from, REFIID riid, const cast_info_t<To>& info, LPVOID* ppv = nullptr) noexcept
+    {
+      To* ptr = nullptr;
+      if (IsEqualIID(riid, info.iid))
+      {
+        ptr = static_cast<To*>(from);
+        ptr->AddRef();
+      }
+      if (ppv)
+      {
+        *ppv = ptr;
+      }
+      return ptr;
+    }
 
-} // namespace detail
+  } // namespace detail
 } // namespace webview
 
 #endif // defined(WEBVIEW_PLATFORM_WINDOWS)

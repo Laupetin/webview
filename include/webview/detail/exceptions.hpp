@@ -30,12 +30,16 @@
 
 #include <exception>
 
-namespace webview {
-namespace detail {
+namespace webview
+{
+  namespace detail
+  {
 
-class bad_access : public std::exception {};
+    class bad_access : public std::exception
+    {
+    };
 
-} // namespace detail
+  } // namespace detail
 } // namespace webview
 
 #endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)

@@ -34,84 +34,114 @@
 #include <type_traits>
 #include <utility>
 
-namespace webview {
-namespace detail {
+namespace webview
+{
+  namespace detail
+  {
 
-template <typename T> class optional {
-public:
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
-  optional() = default;
+    template<typename T> class optional
+    {
+  public:
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
+      optional() = default;
 
-  optional(const T &other) noexcept : m_has_data{true} {
-    new (&m_data) T{other};
-  }
+      optional(const T& other) noexcept
+          : m_has_data{true}
+      {
+        new (&m_data) T{other};
+      }
 
-  optional(T &&other) noexcept : m_has_data{true} {
-    new (&m_data) T{std::move(other)};
-  }
+      optional(T&& other) noexcept
+          : m_has_data{true}
+      {
+        new (&m_data) T{std::move(other)};
+      }
 
-  optional(const optional<T> &other) noexcept { *this = other; }
+      optional(const optional<T>& other) noexcept
+      {
+        *this = other;
+      }
 
-  optional &operator=(const optional<T> &other) noexcept {
-    if (this == &other) {
-      return *this;
-    }
-    m_has_data = other.has_value();
-    if (m_has_data) {
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-      new (&m_data) T{*reinterpret_cast<const T *>(&other.m_data)};
-    }
-    return *this;
-  }
+      optional& operator=(const optional<T>& other) noexcept
+      {
+        if (this == &other)
+        {
+          return *this;
+        }
+        m_has_data = other.has_value();
+        if (m_has_data)
+        {
+          // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+          new (&m_data) T{*reinterpret_cast<const T*>(&other.m_data)};
+        }
+        return *this;
+      }
 
-  optional(optional<T> &&other) noexcept { *this = std::move(other); }
+      optional(optional<T>&& other) noexcept
+      {
+        *this = std::move(other);
+      }
 
-  optional &operator=(optional<T> &&other) noexcept {
-    if (this == &other) {
-      return *this;
-    }
-    m_has_data = other.has_value();
-    if (m_has_data) {
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-      new (&m_data) T{std::move(*reinterpret_cast<T *>(&other.m_data))};
-    }
-    return *this;
-  }
+      optional& operator=(optional<T>&& other) noexcept
+      {
+        if (this == &other)
+        {
+          return *this;
+        }
+        m_has_data = other.has_value();
+        if (m_has_data)
+        {
+          // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+          new (&m_data) T{std::move(*reinterpret_cast<T*>(&other.m_data))};
+        }
+        return *this;
+      }
 
-  ~optional() {
-    if (m_has_data) {
-      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-      reinterpret_cast<T *>(&m_data)->~T();
-    }
-  }
+      ~optional()
+      {
+        if (m_has_data)
+        {
+          // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+          reinterpret_cast<T*>(&m_data)->~T();
+        }
+      }
 
-  const T &get() const {
-    if (!m_has_data) {
-      throw bad_access{};
-    }
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    return *reinterpret_cast<const T *>(&m_data);
-  }
+      const T& get() const
+      {
+        if (!m_has_data)
+        {
+          throw bad_access{};
+        }
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+        return *reinterpret_cast<const T*>(&m_data);
+      }
 
-  T &get() {
-    if (!m_has_data) {
-      throw bad_access{};
-    }
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    return *reinterpret_cast<T *>(&m_data);
-  }
+      T& get()
+      {
+        if (!m_has_data)
+        {
+          throw bad_access{};
+        }
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+        return *reinterpret_cast<T*>(&m_data);
+      }
 
-  bool has_value() const { return m_has_data; }
+      bool has_value() const
+      {
+        return m_has_data;
+      }
 
-private:
-  // NOLINTNEXTLINE(bugprone-sizeof-expression): pointer to aggregate is OK
-  typename std::aligned_storage<sizeof(T), alignof(T)>::type m_data;
-  bool m_has_data{};
-};
+  private:
+      // NOLINTNEXTLINE(bugprone-sizeof-expression): pointer to aggregate is OK
+      typename std::aligned_storage<sizeof(T), alignof(T)>::type m_data;
+      bool m_has_data{};
+    };
 
-template <> class optional<void> {};
+    template<> class optional<void>
+    {
+    };
 
-} // namespace detail
+  } // namespace detail
 } // namespace webview
 
 #endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)

@@ -33,86 +33,135 @@
 
 #include <utility>
 
-namespace webview {
-namespace detail {
+namespace webview
+{
+  namespace detail
+  {
 
-template <typename Value, typename Error, typename Exception>
-class basic_result {
-public:
-  using value_type = Value;
-  using error_type = Error;
-  using exception_type = Exception;
+    template<typename Value, typename Error, typename Exception> class basic_result
+    {
+  public:
+      using value_type = Value;
+      using error_type = Error;
+      using exception_type = Exception;
 
-  basic_result() : basic_result(value_type{}) {}
+      basic_result()
+          : basic_result(value_type{})
+      {
+      }
 
-  basic_result(const value_type &value) : m_value{value} {}
-  basic_result(value_type &&value) : m_value{std::forward<value_type>(value)} {}
+      basic_result(const value_type& value)
+          : m_value{value}
+      {
+      }
 
-  basic_result(const error_type &error) : m_error{error} {}
-  basic_result(error_type &&error) : m_error{std::forward<error_type>(error)} {}
+      basic_result(value_type&& value)
+          : m_value{std::forward<value_type>(value)}
+      {
+      }
 
-  bool ok() const { return has_value() && !has_error(); }
-  bool has_value() const { return m_value.has_value(); }
-  bool has_error() const { return m_error.has_value(); }
+      basic_result(const error_type& error)
+          : m_error{error}
+      {
+      }
 
-  void ensure_ok() {
-    if (!ok()) {
-      throw exception_type{error()};
-    }
-  }
+      basic_result(error_type&& error)
+          : m_error{std::forward<error_type>(error)}
+      {
+      }
 
-  const value_type &value() const {
-    if (!has_value()) {
-      throw bad_access{};
-    }
-    return m_value.get();
-  }
+      bool ok() const
+      {
+        return has_value() && !has_error();
+      }
 
-  const error_type &error() const {
-    if (!has_error()) {
-      throw bad_access{};
-    }
-    return m_error.get();
-  }
+      bool has_value() const
+      {
+        return m_value.has_value();
+      }
 
-private:
-  optional<value_type> m_value;
-  optional<error_type> m_error;
-};
+      bool has_error() const
+      {
+        return m_error.has_value();
+      }
 
-template <typename Error, typename Exception>
-class basic_result<void, Error, Exception> {
-public:
-  using value_type = void;
-  using error_type = Error;
-  using exception_type = Exception;
+      void ensure_ok()
+      {
+        if (!ok())
+        {
+          throw exception_type{error()};
+        }
+      }
 
-  basic_result() = default;
+      const value_type& value() const
+      {
+        if (!has_value())
+        {
+          throw bad_access{};
+        }
+        return m_value.get();
+      }
 
-  basic_result(error_type &&error) : m_error{std::forward<error_type>(error)} {}
+      const error_type& error() const
+      {
+        if (!has_error())
+        {
+          throw bad_access{};
+        }
+        return m_error.get();
+      }
 
-  bool ok() const { return !has_error(); }
+  private:
+      optional<value_type> m_value;
+      optional<error_type> m_error;
+    };
 
-  bool has_error() const { return m_error.has_value(); }
+    template<typename Error, typename Exception> class basic_result<void, Error, Exception>
+    {
+  public:
+      using value_type = void;
+      using error_type = Error;
+      using exception_type = Exception;
 
-  void ensure_ok() {
-    if (!ok()) {
-      throw exception_type{error()};
-    }
-  }
+      basic_result() = default;
 
-  const error_type &error() const {
-    if (!has_error()) {
-      throw bad_access{};
-    }
-    return m_error.get();
-  }
+      basic_result(error_type&& error)
+          : m_error{std::forward<error_type>(error)}
+      {
+      }
 
-private:
-  optional<error_type> m_error;
-};
+      bool ok() const
+      {
+        return !has_error();
+      }
 
-} // namespace detail
+      bool has_error() const
+      {
+        return m_error.has_value();
+      }
+
+      void ensure_ok()
+      {
+        if (!ok())
+        {
+          throw exception_type{error()};
+        }
+      }
+
+      const error_type& error() const
+      {
+        if (!has_error())
+        {
+          throw bad_access{};
+        }
+        return m_error.get();
+      }
+
+  private:
+      optional<error_type> m_error;
+    };
+
+  } // namespace detail
 } // namespace webview
 
 #endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)

@@ -40,18 +40,24 @@
 
 #include <windows.h>
 
-namespace webview {
-namespace detail {
-namespace shcore_symbols {
+namespace webview
+{
+  namespace detail
+  {
+    namespace shcore_symbols
+    {
 
-typedef enum { PROCESS_PER_MONITOR_DPI_AWARE = 2 } PROCESS_DPI_AWARENESS;
-using SetProcessDpiAwareness_t = HRESULT(WINAPI *)(PROCESS_DPI_AWARENESS);
+      typedef enum
+      {
+        PROCESS_PER_MONITOR_DPI_AWARE = 2
+      } PROCESS_DPI_AWARENESS;
 
-constexpr auto SetProcessDpiAwareness =
-    library_symbol<SetProcessDpiAwareness_t>("SetProcessDpiAwareness");
+      using SetProcessDpiAwareness_t = HRESULT(WINAPI*)(PROCESS_DPI_AWARENESS);
 
-} // namespace shcore_symbols
-} // namespace detail
+      constexpr auto SetProcessDpiAwareness = library_symbol<SetProcessDpiAwareness_t>("SetProcessDpiAwareness");
+
+    } // namespace shcore_symbols
+  } // namespace detail
 } // namespace webview
 
 #endif // defined(WEBVIEW_PLATFORM_WINDOWS)

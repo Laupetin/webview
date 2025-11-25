@@ -13,7 +13,7 @@ BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeBraces: Allman
 ColumnLimit:     160
 IncludeBlocks:   Regroup
-IndentWidth:     4
+IndentWidth:     2
 IndentWrappedFunctionNames: true
 InsertNewlineAtEOF: true
 NamespaceIndentation: All

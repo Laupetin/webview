@@ -40,17 +40,19 @@
 
 #include <windows.h>
 
-namespace webview {
-namespace detail {
-namespace ntdll_symbols {
+namespace webview
+{
+  namespace detail
+  {
+    namespace ntdll_symbols
+    {
 
-using RtlGetVersion_t =
-    unsigned int /*NTSTATUS*/ (WINAPI *)(RTL_OSVERSIONINFOW *);
+      using RtlGetVersion_t = unsigned int /*NTSTATUS*/ (WINAPI*)(RTL_OSVERSIONINFOW*);
 
-constexpr auto RtlGetVersion = library_symbol<RtlGetVersion_t>("RtlGetVersion");
+      constexpr auto RtlGetVersion = library_symbol<RtlGetVersion_t>("RtlGetVersion");
 
-} // namespace ntdll_symbols
-} // namespace detail
+    } // namespace ntdll_symbols
+  } // namespace detail
 } // namespace webview
 
 #endif // defined(WEBVIEW_PLATFORM_WINDOWS)

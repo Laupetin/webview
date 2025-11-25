@@ -48,88 +48,102 @@
 
 #endif
 
-namespace webview {
-namespace detail {
+namespace webview
+{
+  namespace detail
+  {
 
-/**
- * GTK compatibility helper class.
- */
-class gtk_compat {
-public:
-  static gboolean init_check() {
+    /**
+     * GTK compatibility helper class.
+     */
+    class gtk_compat
+    {
+  public:
+      static gboolean init_check()
+      {
 #if GTK_MAJOR_VERSION >= 4
-    return gtk_init_check();
+        return gtk_init_check();
 #else
-    return gtk_init_check(nullptr, nullptr);
+        return gtk_init_check(nullptr, nullptr);
 #endif
-  }
+      }
 
-  static GtkWidget *window_new() {
+      static GtkWidget* window_new()
+      {
 #if GTK_MAJOR_VERSION >= 4
-    return gtk_window_new();
+        return gtk_window_new();
 #else
-    return gtk_window_new(GTK_WINDOW_TOPLEVEL);
+        return gtk_window_new(GTK_WINDOW_TOPLEVEL);
 #endif
-  }
+      }
 
-  static void window_set_child(GtkWindow *window, GtkWidget *widget) {
+      static void window_set_child(GtkWindow* window, GtkWidget* widget)
+      {
 #if GTK_MAJOR_VERSION >= 4
-    gtk_window_set_child(window, widget);
+        gtk_window_set_child(window, widget);
 #else
-    gtk_container_add(GTK_CONTAINER(window), widget);
+        gtk_container_add(GTK_CONTAINER(window), widget);
 #endif
-  }
+      }
 
-  static void window_remove_child(GtkWindow *window, GtkWidget *widget) {
+      static void window_remove_child(GtkWindow* window, GtkWidget* widget)
+      {
 #if GTK_MAJOR_VERSION >= 4
-    if (gtk_window_get_child(window) == widget) {
-      gtk_window_set_child(window, nullptr);
-    }
+        if (gtk_window_get_child(window) == widget)
+        {
+          gtk_window_set_child(window, nullptr);
+        }
 #else
-    gtk_container_remove(GTK_CONTAINER(window), widget);
+        gtk_container_remove(GTK_CONTAINER(window), widget);
 #endif
-  }
+      }
 
-  static void widget_set_visible(GtkWidget *widget, bool visible) {
+      static void widget_set_visible(GtkWidget* widget, bool visible)
+      {
 #if GTK_MAJOR_VERSION >= 4
-    gtk_widget_set_visible(widget, visible ? TRUE : FALSE);
+        gtk_widget_set_visible(widget, visible ? TRUE : FALSE);
 #else
-    if (visible) {
-      gtk_widget_show(widget);
-    } else {
-      gtk_widget_hide(widget);
-    }
+        if (visible)
+        {
+          gtk_widget_show(widget);
+        }
+        else
+        {
+          gtk_widget_hide(widget);
+        }
 #endif
-  }
+      }
 
-  static void window_set_size(GtkWindow *window, int width, int height) {
-    // GTK 4 can set a default window size, but unlike GTK 3 it can't resize
-    // the window after it has been set up.
+      static void window_set_size(GtkWindow* window, int width, int height)
+      {
+        // GTK 4 can set a default window size, but unlike GTK 3 it can't resize
+        // the window after it has been set up.
 #if GTK_MAJOR_VERSION >= 4
-    gtk_window_set_default_size(window, width, height);
+        gtk_window_set_default_size(window, width, height);
 #else
-    gtk_window_resize(window, width, height);
+        gtk_window_resize(window, width, height);
 #endif
-  }
+      }
 
-  static void window_set_max_size(GtkWindow *window, int width, int height) {
+      static void window_set_max_size(GtkWindow* window, int width, int height)
+      {
 // X11-specific features are available in GTK 3 but not GTK 4
 #if GTK_MAJOR_VERSION < 4
-    GdkGeometry g{};
-    g.max_width = width;
-    g.max_height = height;
-    GdkWindowHints h = GDK_HINT_MAX_SIZE;
-    gtk_window_set_geometry_hints(GTK_WINDOW(window), nullptr, &g, h);
+        GdkGeometry g{};
+        g.max_width = width;
+        g.max_height = height;
+        GdkWindowHints h = GDK_HINT_MAX_SIZE;
+        gtk_window_set_geometry_hints(GTK_WINDOW(window), nullptr, &g, h);
 #else
-    // Avoid "unused parameter" warnings
-    (void)window;
-    (void)width;
-    (void)height;
+        // Avoid "unused parameter" warnings
+        (void)window;
+        (void)width;
+        (void)height;
 #endif
-  }
-};
+      }
+    };
 
-} // namespace detail
+  } // namespace detail
 } // namespace webview
 
 #endif // defined(WEBVIEW_PLATFORM_LINUX) && defined(WEBVIEW_GTK)
