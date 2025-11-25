@@ -5,4 +5,4 @@ cd "$(dirname "$0")/.." || exit 2
 
 CLANG_FORMAT_BIN="${CLANG_FORMAT_BIN:-clang-format}"
 
-find ./examples ./include -iname '*.h' -o -iname '*.cpp' | xargs $CLANG_FORMAT_BIN -Werror -ferror-limit=1 --dry-run
+find ./examples ./include -iname '*.hpp' -o -iname '*.cpp' | xargs $CLANG_FORMAT_BIN -Werror -ferror-limit=1 --dry-run
