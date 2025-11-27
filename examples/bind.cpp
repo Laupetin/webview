@@ -5,7 +5,7 @@
 #include <string>
 #include <thread>
 
-constexpr const auto html =
+constexpr auto html =
     R"html(
 <div>
   <button id="increment">+</button>
@@ -25,18 +25,19 @@ constexpr const auto html =
     "computeResult"
   ]);
   ui.increment.addEventListener("click", async () => {
-    ui.counterResult.textContent = await window.count(1);
+    ui.counterResult.textContent = await window.webviewBinds.count(1);
   });
   ui.decrement.addEventListener("click", async () => {
-    ui.counterResult.textContent = await window.count(-1);
+    ui.counterResult.textContent = await window.webviewBinds.count(-1);
   });
   ui.compute.addEventListener("click", async () => {
     ui.compute.disabled = true;
     ui.computeResult.textContent = "(pending)";
-    ui.computeResult.textContent = await window.compute(6, 7);
+    ui.computeResult.textContent = await window.webviewBinds.compute(6, 7);
     ui.compute.disabled = false;
   });
-</script>)html";
+</script>
+)html";
 
 #ifdef _WIN32
 int WINAPI WinMain(HINSTANCE /*hInst*/, HINSTANCE /*hPrevInst*/, LPSTR /*lpCmdLine*/, int /*nCmdShow*/)
@@ -58,7 +59,7 @@ int main()
            [&](const std::string& req) -> std::string
            {
              // Imagine that req is properly parsed or use your own JSON parser.
-             auto direction = std::stol(req.substr(1, req.size() - 1));
+             const auto direction = std::stol(req.substr(1, req.size() - 1));
              return std::to_string(count += direction);
            });
 
