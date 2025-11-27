@@ -33,26 +33,12 @@
 
 #include <functional>
 
-typedef enum
-{
-  /// Width and height are default size.
-  WEBVIEW_HINT_NONE,
-  /// Width and height are minimum bounds.
-  WEBVIEW_HINT_MIN,
-  /// Width and height are maximum bounds.
-  WEBVIEW_HINT_MAX,
-  /// Window size can not be changed by a user.
-  WEBVIEW_HINT_FIXED
-} webview_hint_t;
-
 namespace webview
 {
   using dispatch_fn_t = std::function<void()>;
 
   template<typename T> using result = detail::basic_result<T, error_info, exception>;
-
   using noresult = detail::basic_result<void, error_info, exception>;
-
 } // namespace webview
 
 #endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)

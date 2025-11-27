@@ -102,6 +102,16 @@ workspace "Webview"
     if os.host() == "windows" then
         installWebview2()
     end
+    
+    project("webview")
+        targetdir("%{wks.location}/%{cfg.buildcfg}_%{cfg.platform}")
+        location "%{wks.location}"
+        kind "Utility"
+        language "C++"
+        files {
+            "include/**/*.hpp"
+        }
+
 
     local exampleFiles = os.matchfiles("examples/*")
     for i = 1, #exampleFiles do
@@ -111,11 +121,7 @@ workspace "Webview"
             targetdir("%{wks.location}/%{cfg.buildcfg}_%{cfg.platform}")
             location "%{wks.location}/examples"
             kind "WindowedApp"
-            if path.iscfile(exampleFile) then
-                language "C"
-            else
-                language "C++"
-            end
+            language "C++"
 
             includedirs {
                 "include"
