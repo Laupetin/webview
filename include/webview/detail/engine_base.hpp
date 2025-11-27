@@ -96,7 +96,7 @@ namespace webview::detail
     noresult bind(const std::string& name, binding_t fn, void* arg)
     {
       if (m_bindings.contains(name))
-        return error_info{WEBVIEW_ERROR_DUPLICATE};
+        return error_info{webview_error::DUPLICATE};
 
       m_bindings.emplace(name, binding_ctx_t(std::move(fn), arg));
       replace_bind_script();
@@ -112,7 +112,7 @@ namespace webview::detail
     {
       const auto found = m_bindings.find(name);
       if (found == m_bindings.end())
-        return error_info{WEBVIEW_ERROR_NOT_FOUND};
+        return error_info{webview_error::NOT_FOUND};
 
       m_bindings.erase(found);
       replace_bind_script();

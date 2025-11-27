@@ -34,9 +34,9 @@
 namespace webview
 {
   WEBVIEW_DEPRECATED_PRIVATE
-  inline int json_parse_c(const char* s, size_t sz, const char* key, size_t keysz, const char** value, size_t* valuesz)
+  inline int json_parse_c(const char* s, const size_t sz, const char* key, const size_t key_size, const char** value, size_t* value_size)
   {
-    return detail::json_parse_c(s, sz, key, keysz, value, valuesz);
+    return detail::json_parse_c(s, sz, key, key_size, value, value_size);
   }
 
   inline std::string json_escape(const std::string& s)
@@ -44,7 +44,7 @@ namespace webview
     return detail::json_escape(s);
   }
 
-  inline int json_unescape(const char* s, size_t n, char* out)
+  inline int json_unescape(const char* s, const size_t n, char* out)
   {
     return detail::json_unescape(s, n, out);
   }

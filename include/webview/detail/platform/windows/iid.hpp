@@ -43,38 +43,33 @@
 #pragma comment(lib, "ole32.lib")
 #endif
 
-namespace webview
+namespace webview::detail
 {
-  namespace detail
+  template<typename T> struct cast_info_t
   {
+    using type = T;
+    IID iid;
+  };
 
-    template<typename T> struct cast_info_t
+  // Checks whether the specified IID equals the IID of the specified type and
+  // if so casts the "this" pointer to T and returns it. Returns nullptr on
+  // mismatching IIDs.
+  // If ppv is specified then the pointer will also be assigned to *ppv.
+  template<typename From, typename To> To* cast_if_equal_iid(From* from, REFIID riid, const cast_info_t<To>& info, LPVOID* ppv = nullptr) noexcept
+  {
+    To* ptr = nullptr;
+    if (IsEqualIID(riid, info.iid))
     {
-      using type = T;
-      IID iid;
-    };
-
-    // Checks whether the specified IID equals the IID of the specified type and
-    // if so casts the "this" pointer to T and returns it. Returns nullptr on
-    // mismatching IIDs.
-    // If ppv is specified then the pointer will also be assigned to *ppv.
-    template<typename From, typename To> To* cast_if_equal_iid(From* from, REFIID riid, const cast_info_t<To>& info, LPVOID* ppv = nullptr) noexcept
-    {
-      To* ptr = nullptr;
-      if (IsEqualIID(riid, info.iid))
-      {
-        ptr = static_cast<To*>(from);
-        ptr->AddRef();
-      }
-      if (ppv)
-      {
-        *ppv = ptr;
-      }
-      return ptr;
+      ptr = static_cast<To*>(from);
+      ptr->AddRef();
     }
 
-  } // namespace detail
-} // namespace webview
+    if (ppv)
+      *ppv = ptr;
+
+    return ptr;
+  }
+}
 
 #endif // defined(WEBVIEW_PLATFORM_WINDOWS)
 #endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)

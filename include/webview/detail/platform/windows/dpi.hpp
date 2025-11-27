@@ -56,123 +56,115 @@
 #pragma comment(lib, "user32.lib")
 #endif
 
-namespace webview
+namespace webview::detail
 {
-  namespace detail
+  inline bool is_per_monitor_v2_awareness_available()
   {
+    // Windows 10, version 1703
+    return compare_os_version(10, 0, 15063) >= 0;
+  }
 
-    inline bool is_per_monitor_v2_awareness_available()
+  inline bool enable_dpi_awareness()
+  {
+    const auto user32 = native_library(L"user32.dll");
+    if (const auto fn = user32.get(user32_symbols::SetProcessDpiAwarenessContext))
     {
-      // Windows 10, version 1703
-      return compare_os_version(10, 0, 15063) >= 0;
+      const auto dpi_awareness = reinterpret_cast<user32_symbols::DPI_AWARENESS_CONTEXT>(
+        is_per_monitor_v2_awareness_available() ? user32_symbols::dpi_awareness::per_monitor_v2_aware : user32_symbols::dpi_awareness::per_monitor_aware);
+
+      if (fn(dpi_awareness))
+        return true;
+
+      return GetLastError() == ERROR_ACCESS_DENIED;
     }
 
-    inline bool enable_dpi_awareness()
+    if (const auto shcore = native_library(L"shcore.dll"))
     {
-      auto user32 = native_library(L"user32.dll");
-      if (auto fn = user32.get(user32_symbols::SetProcessDpiAwarenessContext))
+      if (const auto fn = shcore.get(shcore_symbols::SetProcessDpiAwareness))
       {
-        auto dpi_awareness = reinterpret_cast<user32_symbols::DPI_AWARENESS_CONTEXT>(
-            is_per_monitor_v2_awareness_available() ? user32_symbols::dpi_awareness::per_monitor_v2_aware : user32_symbols::dpi_awareness::per_monitor_aware);
-        if (fn(dpi_awareness))
-        {
-          return true;
-        }
-        return GetLastError() == ERROR_ACCESS_DENIED;
+        const auto result = fn(shcore_symbols::PROCESS_PER_MONITOR_DPI_AWARE);
+        return result == S_OK || result == E_ACCESSDENIED;
       }
-      if (auto shcore = native_library(L"shcore.dll"))
-      {
-        if (auto fn = shcore.get(shcore_symbols::SetProcessDpiAwareness))
-        {
-          auto result = fn(shcore_symbols::PROCESS_PER_MONITOR_DPI_AWARE);
-          return result == S_OK || result == E_ACCESSDENIED;
-        }
-      }
-      if (auto fn = user32.get(user32_symbols::SetProcessDPIAware))
-      {
-        return !!fn();
-      }
+    }
+
+    if (const auto fn = user32.get(user32_symbols::SetProcessDPIAware))
+      return !!fn();
+
+    return true;
+  }
+
+  inline bool enable_non_client_dpi_scaling_if_needed(const HWND window)
+  {
+    const auto user32 = native_library(L"user32.dll");
+    const auto get_ctx_fn = user32.get(user32_symbols::GetWindowDpiAwarenessContext);
+    if (!get_ctx_fn)
       return true;
-    }
 
-    inline bool enable_non_client_dpi_scaling_if_needed(HWND window)
+    const auto awareness = get_ctx_fn(window);
+    if (!awareness)
+      return false;
+
+    const auto ctx_equal_fn = user32.get(user32_symbols::AreDpiAwarenessContextsEqual);
+    if (!ctx_equal_fn)
+      return true;
+
+    // EnableNonClientDpiScaling is only needed with per monitor v1 awareness.
+    const auto per_monitor = reinterpret_cast<user32_symbols::DPI_AWARENESS_CONTEXT>(user32_symbols::dpi_awareness::per_monitor_aware);
+    if (!ctx_equal_fn(awareness, per_monitor))
+      return true;
+
+    const auto enable_fn = user32.get(user32_symbols::EnableNonClientDpiScaling);
+    if (!enable_fn)
+      return true;
+
+    return !!enable_fn(window);
+  }
+
+  constexpr int get_default_window_dpi()
+  {
+    return 96; // USER_DEFAULT_SCREEN_DPI
+  }
+
+  inline int get_window_dpi(const HWND window)
+  {
+    const auto user32 = native_library(L"user32.dll");
+    if (const auto fn = user32.get(user32_symbols::GetDpiForWindow))
     {
-      auto user32 = native_library(L"user32.dll");
-      auto get_ctx_fn = user32.get(user32_symbols::GetWindowDpiAwarenessContext);
-      if (!get_ctx_fn)
-      {
-        return true;
-      }
-      auto awareness = get_ctx_fn(window);
-      if (!awareness)
-      {
-        return false;
-      }
-      auto ctx_equal_fn = user32.get(user32_symbols::AreDpiAwarenessContextsEqual);
-      if (!ctx_equal_fn)
-      {
-        return true;
-      }
-      // EnableNonClientDpiScaling is only needed with per monitor v1 awareness.
-      auto per_monitor = reinterpret_cast<user32_symbols::DPI_AWARENESS_CONTEXT>(user32_symbols::dpi_awareness::per_monitor_aware);
-      if (!ctx_equal_fn(awareness, per_monitor))
-      {
-        return true;
-      }
-      auto enable_fn = user32.get(user32_symbols::EnableNonClientDpiScaling);
-      if (!enable_fn)
-      {
-        return true;
-      }
-      return !!enable_fn(window);
+      const auto dpi = static_cast<int>(fn(window));
+      return dpi;
     }
 
-    constexpr int get_default_window_dpi()
-    {
-      return 96; // USER_DEFAULT_SCREEN_DPI
-    }
+    return get_default_window_dpi();
+  }
 
-    inline int get_window_dpi(HWND window)
-    {
-      auto user32 = native_library(L"user32.dll");
-      if (auto fn = user32.get(user32_symbols::GetDpiForWindow))
-      {
-        auto dpi = static_cast<int>(fn(window));
-        return dpi;
-      }
-      return get_default_window_dpi();
-    }
+  constexpr int scale_value_for_dpi(const int value, const int from_dpi, const int to_dpi)
+  {
+    return (value * to_dpi) / from_dpi;
+  }
 
-    constexpr int scale_value_for_dpi(int value, int from_dpi, int to_dpi)
-    {
-      return (value * to_dpi) / from_dpi;
-    }
+  constexpr SIZE scale_size(const int width, const int height, const int from_dpi, const int to_dpi)
+  {
+    return {scale_value_for_dpi(width, from_dpi, to_dpi), scale_value_for_dpi(height, from_dpi, to_dpi)};
+  }
 
-    constexpr SIZE scale_size(int width, int height, int from_dpi, int to_dpi)
-    {
-      return {scale_value_for_dpi(width, from_dpi, to_dpi), scale_value_for_dpi(height, from_dpi, to_dpi)};
-    }
+  inline SIZE make_window_frame_size(const HWND window, const int width, const int height, const int dpi)
+  {
+    const auto style = GetWindowLong(window, GWL_STYLE);
+    RECT r{0, 0, width, height};
+    const auto user32 = native_library(L"user32.dll");
 
-    inline SIZE make_window_frame_size(HWND window, int width, int height, int dpi)
-    {
-      auto style = GetWindowLong(window, GWL_STYLE);
-      RECT r{0, 0, width, height};
-      auto user32 = native_library(L"user32.dll");
-      if (auto fn = user32.get(user32_symbols::AdjustWindowRectExForDpi))
-      {
-        fn(&r, style, FALSE, 0, static_cast<UINT>(dpi));
-      }
-      else
-      {
-        AdjustWindowRect(&r, style, 0);
-      }
-      auto frame_width = r.right - r.left;
-      auto frame_height = r.bottom - r.top;
-      return {frame_width, frame_height};
-    }
+    if (const auto fn = user32.get(user32_symbols::AdjustWindowRectExForDpi))
+      fn(&r, style, FALSE, 0, static_cast<UINT>(dpi));
+    else
+      AdjustWindowRect(&r, style, 0);
 
-  } // namespace detail
-} // namespace webview
+    const auto frame_width = r.right - r.left;
+    const auto frame_height = r.bottom - r.top;
+
+    return {frame_width, frame_height};
+  }
+
+}
 
 #endif // defined(WEBVIEW_PLATFORM_WINDOWS)
 #endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)

@@ -369,16 +369,16 @@ namespace webview
 
         // Replace wndproc to avoid callbacks and other bad things during
         // destruction.
-        auto wndproc = reinterpret_cast<LONG_PTR>(+[](HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) -> LRESULT
+        const auto wnd_proc = reinterpret_cast<LONG_PTR>(+[](const HWND hwnd, const UINT msg, const WPARAM wp, const LPARAM lp) -> LRESULT
         {
           return DefWindowProcW(hwnd, msg, wp, lp);
         });
 
         if (m_widget)
-          SetWindowLongPtrW(m_widget, GWLP_WNDPROC, wndproc);
+          SetWindowLongPtrW(m_widget, GWLP_WNDPROC, wnd_proc);
 
         if (m_window && owns_window())
-          SetWindowLongPtrW(m_window, GWLP_WNDPROC, wndproc);
+          SetWindowLongPtrW(m_window, GWLP_WNDPROC, wnd_proc);
 
         if (m_widget)
         {
@@ -407,7 +407,7 @@ namespace webview
         // We need the message window in order to deplete the event queue.
         if (m_message_window)
         {
-          SetWindowLongPtrW(m_message_window, GWLP_WNDPROC, wndproc);
+          SetWindowLongPtrW(m_message_window, GWLP_WNDPROC, wnd_proc);
           DestroyWindow(m_message_window);
           m_message_window = nullptr;
         }
@@ -440,7 +440,7 @@ namespace webview
         if (m_window)
           return m_window;
 
-        return error_info{WEBVIEW_ERROR_INVALID_STATE};
+        return error_info{webview_error::INVALID_STATE};
       }
 
       result<void*> widget() override
@@ -448,7 +448,7 @@ namespace webview
         if (m_widget)
           return m_widget;
 
-        return error_info{WEBVIEW_ERROR_INVALID_STATE};
+        return error_info{webview_error::INVALID_STATE};
       }
 
       result<void*> browser_controller() override
@@ -456,7 +456,7 @@ namespace webview
         if (m_controller)
           return m_controller;
 
-        return error_info{WEBVIEW_ERROR_INVALID_STATE};
+        return error_info{webview_error::INVALID_STATE};
       }
 
       noresult set_title(const std::string& title) override
@@ -605,13 +605,13 @@ namespace webview
       void window_init(void* window)
       {
         if (!is_webview2_available())
-          throw exception{WEBVIEW_ERROR_MISSING_DEPENDENCY, "WebView2 is unavailable"};
+          throw exception{webview_error::MISSING_DEPENDENCY, "WebView2 is unavailable"};
 
         const HINSTANCE h_instance = GetModuleHandle(nullptr);
 
         if (owns_window())
         {
-          m_com_init = {COINIT_APARTMENTTHREADED};
+          m_com_init = com_init_wrapper(COINIT_APARTMENTTHREADED);
           enable_dpi_awareness();
 
           const auto icon = static_cast<HICON>(LoadImage(h_instance,
@@ -630,7 +630,7 @@ namespace webview
           wc.hIcon = icon;
           wc.lpfnWndProc = +[](const HWND hwnd, const UINT msg, const WPARAM wp, const LPARAM lp) -> LRESULT
           {
-            win32_edge_engine* w{};
+            win32_edge_engine* w;
 
             if (msg == WM_NCCREATE)
             {
@@ -696,7 +696,7 @@ namespace webview
               // Windows 10: The size we get here is exactly what we supplied to WM_GETDPISCALEDSIZE.
               // Windows 11: The size we get here is NOT what we supplied to WM_GETDPISCALEDSIZE.
               // Due to this difference, don't use the suggested bounds.
-              auto dpi = static_cast<int>(HIWORD(wp));
+              const auto dpi = static_cast<int>(HIWORD(wp));
               w->on_dpi_changed(dpi);
               break;
             }
@@ -726,7 +726,7 @@ namespace webview
           CreateWindowW(L"webview", L"", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 0, 0, nullptr, nullptr, h_instance, this);
 
           if (!m_window)
-            throw exception{WEBVIEW_ERROR_INVALID_STATE, "Window is null"};
+            throw exception{webview_error::INVALID_STATE, "Window is null"};
 
           on_window_created();
 
@@ -745,7 +745,7 @@ namespace webview
         widget_wc.lpszClassName = L"webview_widget";
         widget_wc.lpfnWndProc = +[](const HWND hwnd, const UINT msg, const WPARAM wp, const LPARAM lp) -> LRESULT
         {
-          win32_edge_engine* w{};
+          win32_edge_engine* w;
 
           if (msg == WM_NCCREATE)
           {
@@ -785,7 +785,7 @@ namespace webview
         RegisterClassExW(&widget_wc);
         CreateWindowExW(WS_EX_CONTROLPARENT, L"webview_widget", nullptr, WS_CHILD, 0, 0, 0, 0, m_window, nullptr, h_instance, this);
         if (!m_widget)
-          throw exception{WEBVIEW_ERROR_INVALID_STATE, "Widget window is null"};
+          throw exception{webview_error::INVALID_STATE, "Widget window is null"};
 
         // Create a message-only window for internal messaging.
         WNDCLASSEXW message_wc{};
@@ -794,11 +794,11 @@ namespace webview
         message_wc.lpszClassName = L"webview_message";
         message_wc.lpfnWndProc = +[](const HWND hwnd, const UINT msg, const WPARAM wp, const LPARAM lp) -> LRESULT
         {
-          win32_edge_engine* w{};
+          win32_edge_engine* w;
 
           if (msg == WM_NCCREATE)
           {
-            auto* lpcs{reinterpret_cast<LPCREATESTRUCT>(lp)};
+            const auto* lpcs{reinterpret_cast<LPCREATESTRUCT>(lp)};
             w = static_cast<win32_edge_engine*>(lpcs->lpCreateParams);
             w->m_message_window = hwnd;
             SetWindowLongPtrW(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(w));
@@ -836,7 +836,7 @@ namespace webview
         CreateWindowExW(0, L"webview_message", nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, nullptr, h_instance, this);
 
         if (!m_message_window)
-          throw exception{WEBVIEW_ERROR_INVALID_STATE, "Message window is null"};
+          throw exception{webview_error::INVALID_STATE, "Message window is null"};
       }
 
       void window_settings(const bool debug)
@@ -868,7 +868,7 @@ namespace webview
 
         wchar_t data_path[MAX_PATH];
         if (!SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_APPDATA, nullptr, 0, data_path)))
-          return error_info{WEBVIEW_ERROR_UNSPECIFIED, "SHGetFolderPathW failed"};
+          return error_info{webview_error::UNSPECIFIED, "SHGetFolderPathW failed"};
 
         wchar_t user_data_folder[MAX_PATH];
         PathCombineW(user_data_folder, data_path, current_exe_name);
@@ -914,23 +914,23 @@ namespace webview
         }
 
         if (got_quit_msg)
-          return error_info{WEBVIEW_ERROR_CANCELED};
+          return error_info{webview_error::CANCELED};
 
         if (!m_controller || !m_webview)
-          return error_info{WEBVIEW_ERROR_INVALID_STATE};
+          return error_info{webview_error::INVALID_STATE};
 
         ICoreWebView2Settings* settings = nullptr;
         auto res = m_webview->get_Settings(&settings);
         if (res != S_OK)
-          return error_info{WEBVIEW_ERROR_UNSPECIFIED, "get_Settings failed"};
+          return error_info{webview_error::UNSPECIFIED, "get_Settings failed"};
 
         res = settings->put_AreDevToolsEnabled(debug ? TRUE : FALSE);
         if (res != S_OK)
-          return error_info{WEBVIEW_ERROR_UNSPECIFIED, "put_AreDevToolsEnabled failed"};
+          return error_info{webview_error::UNSPECIFIED, "put_AreDevToolsEnabled failed"};
 
         res = settings->put_IsStatusBarEnabled(FALSE);
         if (res != S_OK)
-          return error_info{WEBVIEW_ERROR_UNSPECIFIED, "put_IsStatusBarEnabled failed"};
+          return error_info{webview_error::UNSPECIFIED, "put_IsStatusBarEnabled failed"};
 
         add_init_script("(message) => window.chrome.webview.postMessage(message)");
         resize_webview();

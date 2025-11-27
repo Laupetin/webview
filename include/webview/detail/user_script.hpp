@@ -33,65 +33,58 @@
 #include <string>
 #include <utility>
 
-namespace webview
+namespace webview::detail
 {
-  namespace detail
+  class user_script
   {
-
-    class user_script
-    {
   public:
-      class impl;
-      using impl_deleter = std::function<void(impl*)>;
-      using impl_ptr = std::unique_ptr<impl, impl_deleter>;
+    class impl;
+    using impl_deleter = std::function<void(impl*)>;
+    using impl_ptr = std::unique_ptr<impl, impl_deleter>;
 
-      user_script(const std::string& code, impl_ptr&& impl_)
-          : m_code{code},
-            m_impl{std::move(impl_)}
-      {
-      }
+    user_script(const std::string& code, impl_ptr&& impl_)
+      : m_code(code),
+        m_impl(std::move(impl_)) {}
 
-      user_script(const user_script& other) = delete;
-      user_script& operator=(const user_script& other) = delete;
+    user_script(const user_script& other) = delete;
+    user_script& operator=(const user_script& other) = delete;
 
-      user_script(user_script&& other) noexcept
-      {
-        *this = std::move(other);
-      }
+    user_script(user_script&& other) noexcept
+    {
+      *this = std::move(other);
+    }
 
-      user_script& operator=(user_script&& other) noexcept
-      {
-        if (this == &other)
-        {
-          return *this;
-        }
-        m_code = std::move(other.m_code);
-        m_impl = std::move(other.m_impl);
+    user_script& operator=(user_script&& other) noexcept
+    {
+      if (this == &other)
         return *this;
-      }
 
-      const std::string& get_code() const
-      {
-        return m_code;
-      }
+      m_code = std::move(other.m_code);
+      m_impl = std::move(other.m_impl);
 
-      impl& get_impl()
-      {
-        return *m_impl;
-      }
+      return *this;
+    }
 
-      const impl& get_impl() const
-      {
-        return *m_impl;
-      }
+    const std::string& get_code() const
+    {
+      return m_code;
+    }
+
+    impl& get_impl()
+    {
+      return *m_impl;
+    }
+
+    const impl& get_impl() const
+    {
+      return *m_impl;
+    }
 
   private:
-      std::string m_code;
-      impl_ptr m_impl;
-    };
-
-  } // namespace detail
-} // namespace webview
+    std::string m_code;
+    impl_ptr m_impl;
+  };
+}
 
 #endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)
 #endif // WEBVIEW_DETAIL_USER_SCRIPT_HPP

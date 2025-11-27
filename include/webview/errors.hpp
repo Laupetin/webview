@@ -31,55 +31,52 @@
 #include <exception>
 #include <string>
 
-/**
- * @brief Error codes returned to callers of the API.
- *
- * The following codes are commonly used in the library:
- * - @c WEBVIEW_ERROR_OK
- * - @c WEBVIEW_ERROR_UNSPECIFIED
- * - @c WEBVIEW_ERROR_INVALID_ARGUMENT
- * - @c WEBVIEW_ERROR_INVALID_STATE
- *
- * With the exception of @c WEBVIEW_ERROR_OK which is normally expected,
- * the other common codes do not normally need to be handled specifically.
- * Refer to specific functions regarding handling of other codes.
- */
-typedef enum
-{
-  /// Missing dependency.
-  WEBVIEW_ERROR_MISSING_DEPENDENCY = -5,
-  /// Operation canceled.
-  WEBVIEW_ERROR_CANCELED = -4,
-  /// Invalid state detected.
-  WEBVIEW_ERROR_INVALID_STATE = -3,
-  /// One or more invalid arguments have been specified e.g. in a function call.
-  WEBVIEW_ERROR_INVALID_ARGUMENT = -2,
-  /// An unspecified error occurred. A more specific error code may be needed.
-  WEBVIEW_ERROR_UNSPECIFIED = -1,
-  /// OK/Success. Functions that return error codes will typically return this
-  /// to signify successful operations.
-  WEBVIEW_ERROR_OK = 0,
-  /// Signifies that something already exists.
-  WEBVIEW_ERROR_DUPLICATE = 1,
-  /// Signifies that something does not exist.
-  WEBVIEW_ERROR_NOT_FOUND = 2
-} webview_error_t;
-
 namespace webview
 {
+  /**
+   * @brief Error codes returned to callers of the API.
+   *
+   * The following codes are commonly used in the library:
+   * - @c WEBVIEW_ERROR_OK
+   * - @c WEBVIEW_ERROR_UNSPECIFIED
+   * - @c WEBVIEW_ERROR_INVALID_ARGUMENT
+   * - @c WEBVIEW_ERROR_INVALID_STATE
+   *
+   * With the exception of @c WEBVIEW_ERROR_OK which is normally expected,
+   * the other common codes do not normally need to be handled specifically.
+   * Refer to specific functions regarding handling of other codes.
+   */
+  enum class webview_error
+  {
+    /// Missing dependency.
+    MISSING_DEPENDENCY = -5,
+    /// Operation canceled.
+    CANCELED = -4,
+    /// Invalid state detected.
+    INVALID_STATE = -3,
+    /// One or more invalid arguments have been specified e.g. in a function call.
+    INVALID_ARGUMENT = -2,
+    /// An unspecified error occurred. A more specific error code may be needed.
+    UNSPECIFIED = -1,
+    /// OK/Success. Functions that return error codes will typically return this
+    /// to signify successful operations.
+    OK = 0,
+    /// Signifies that something already exists.
+    DUPLICATE = 1,
+    /// Signifies that something does not exist.
+    NOT_FOUND = 2
+  };
 
   class error_info
   {
-public:
-    error_info(webview_error_t code, const std::string& message = {}) noexcept
-        : m_code{code},
-          m_message{message}
-    {
-    }
+  public:
+    explicit error_info(const webview_error code, const std::string& message = {}) noexcept
+      : m_code(code),
+        m_message(message) {}
 
     error_info() = default;
 
-    webview_error_t code() const
+    webview_error code() const
     {
       return m_code;
     }
@@ -89,40 +86,27 @@ public:
       return m_message;
     }
 
-private:
-    webview_error_t m_code{WEBVIEW_ERROR_UNSPECIFIED};
+  private:
+    webview_error m_code{webview_error::UNSPECIFIED};
     std::string m_message;
   };
 
   class exception : public std::exception
   {
-public:
-    exception(webview_error_t code, const std::string& message, std::exception_ptr cause) noexcept
-        : exception{
-              error_info{code, message},
-              cause
-    }
-    {
-    }
+  public:
+    exception(const webview_error code, const std::string& message, std::exception_ptr cause) noexcept
+      : exception(error_info(code, message), std::move(cause)) {}
 
-    exception(webview_error_t code, const std::string& message) noexcept
-        : exception{
-              error_info{code, message}
-    }
-    {
-    }
+    exception(const webview_error code, const std::string& message) noexcept
+      : exception(error_info(code, message)) {}
 
     exception(const error_info& error, std::exception_ptr cause) noexcept
-        : m_error{error},
-          // NOLINTNEXTLINE(bugprone-throw-keyword-missing)
-          m_cause{cause}
-    {
-    }
+      : m_error(error),
+        // NOLINTNEXTLINE(bugprone-throw-keyword-missing)
+        m_cause(std::move(cause)) {}
 
-    exception(const error_info& error) noexcept
-        : m_error{error}
-    {
-    }
+    explicit exception(const error_info& error) noexcept
+      : m_error(error) {}
 
     exception() = default;
 
@@ -141,8 +125,8 @@ public:
       return m_error.message().c_str();
     }
 
-private:
-    error_info m_error{WEBVIEW_ERROR_UNSPECIFIED};
+  private:
+    error_info m_error{webview_error::UNSPECIFIED};
     std::exception_ptr m_cause;
   };
 

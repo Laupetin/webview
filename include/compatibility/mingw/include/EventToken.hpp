@@ -10,11 +10,7 @@
 
 #ifndef __eventtoken_h__
 
-#ifdef __cplusplus
 #include <cstdint>
-#else
-#include <stdint.h>
-#endif
 
 typedef struct EventRegistrationToken
 {
