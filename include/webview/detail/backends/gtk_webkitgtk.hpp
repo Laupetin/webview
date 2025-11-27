@@ -78,7 +78,6 @@ namespace webview
 {
   namespace detail
   {
-
     class user_script::impl
     {
   public:
@@ -110,7 +109,7 @@ namespace webview
     class gtk_webkit_engine : public engine_base
     {
   public:
-      gtk_webkit_engine(bool debug, void* window)
+      gtk_webkit_engine(const bool debug, void* window)
           : engine_base{!window}
       {
         window_init(window);
@@ -139,10 +138,10 @@ namespace webview
             gtk_compat::window_remove_child(GTK_WINDOW(m_window), GTK_WIDGET(m_webview));
           }
         }
+
         if (m_webview)
-        {
           g_object_unref(m_webview);
-        }
+
         if (owns_window())
         {
           // Needed for the window to close immediately.
@@ -150,45 +149,16 @@ namespace webview
         }
       }
 
-  protected:
-      result<void*> window_impl() override
-      {
-        if (m_window)
-        {
-          return m_window;
-        }
-        return error_info{WEBVIEW_ERROR_INVALID_STATE};
-      }
-
-      result<void*> widget_impl() override
-      {
-        if (m_webview)
-        {
-          return m_webview;
-        }
-        return error_info{WEBVIEW_ERROR_INVALID_STATE};
-      }
-
-      result<void*> browser_controller_impl() override
-      {
-        if (m_webview)
-        {
-          return m_webview;
-        }
-        return error_info{WEBVIEW_ERROR_INVALID_STATE};
-      }
-
-      noresult run_impl() override
+      noresult run() override
       {
         m_stop_run_loop = false;
         while (!m_stop_run_loop)
-        {
           g_main_context_iteration(nullptr, TRUE);
-        }
+
         return {};
       }
 
-      noresult terminate_impl() override
+      noresult terminate() override
       {
         return dispatch_impl(
             [&]
@@ -197,6 +167,79 @@ namespace webview
             });
       }
 
+      result<void*> window() override
+      {
+        if (m_window)
+          return m_window;
+
+        return error_info{webview_error::INVALID_STATE};
+      }
+
+      result<void*> widget() override
+      {
+        if (m_webview)
+          return m_webview;
+
+        return error_info{webview_error::INVALID_STATE};
+      }
+
+      result<void*> browser_controller() override
+      {
+        if (m_webview)
+          return m_webview;
+
+        return error_info{webview_error::INVALID_STATE};
+      }
+
+      noresult set_title(const std::string& title) override
+      {
+        gtk_window_set_title(GTK_WINDOW(m_window), title.c_str());
+        return {};
+      }
+
+      noresult set_window_min(const int width, const int height) override
+      {
+        gtk_widget_set_size_request(m_window, width, height);
+
+        return window_show();
+      }
+
+      noresult set_window_max(const int width, const int height) override
+      {
+        gtk_compat::window_set_max_size(GTK_WINDOW(m_window), width, height);
+
+        return window_show();
+      }
+
+      noresult set_window_size_fixed(const bool value) override
+      {
+        gtk_window_set_resizable(GTK_WINDOW(m_window), !value);
+
+        return {};
+      }
+
+      noresult eval(const std::string& js) override
+      {
+        // URI is null before content has begun loading.
+        if (!webkit_web_view_get_uri(WEBKIT_WEB_VIEW(m_webview)))
+          return {};
+
+#if (WEBKIT_MAJOR_VERSION == 2 && WEBKIT_MINOR_VERSION >= 40) || WEBKIT_MAJOR_VERSION > 2
+        webkit_web_view_evaluate_javascript(
+            WEBKIT_WEB_VIEW(m_webview), js.c_str(), static_cast<gssize>(js.size()), nullptr, nullptr, nullptr, nullptr, nullptr);
+#else
+        webkit_web_view_run_javascript(WEBKIT_WEB_VIEW(m_webview), js.c_str(), nullptr, nullptr, nullptr);
+#endif
+        return {};
+      }
+
+      noresult set_html(const std::string& html) override
+      {
+        webkit_web_view_load_html(WEBKIT_WEB_VIEW(m_webview), html.c_str(), nullptr);
+        return {};
+      }
+
+  protected:
       noresult dispatch_impl(std::function<void()> f) override
       {
         g_idle_add_full(G_PRIORITY_HIGH_IDLE, (GSourceFunc)([](void *fn) -> int {
@@ -208,31 +251,9 @@ namespace webview
         return {};
       }
 
-      noresult set_title_impl(const std::string& title) override
+      noresult set_window_size_impl(int width, int height) override
       {
-        gtk_window_set_title(GTK_WINDOW(m_window), title.c_str());
-        return {};
-      }
-
-      noresult set_size_impl(int width, int height, webview_hint_t hints) override
-      {
-        gtk_window_set_resizable(GTK_WINDOW(m_window), hints != WEBVIEW_HINT_FIXED);
-        if (hints == WEBVIEW_HINT_NONE || hints == WEBVIEW_HINT_FIXED)
-        {
-          gtk_compat::window_set_size(GTK_WINDOW(m_window), width, height);
-        }
-        else if (hints == WEBVIEW_HINT_MIN)
-        {
-          gtk_widget_set_size_request(m_window, width, height);
-        }
-        else if (hints == WEBVIEW_HINT_MAX)
-        {
-          gtk_compat::window_set_max_size(GTK_WINDOW(m_window), width, height);
-        }
-        else
-        {
-          return error_info{WEBVIEW_ERROR_INVALID_ARGUMENT, "Invalid hint"};
-        }
+        gtk_compat::window_set_size(GTK_WINDOW(m_window), width, height);
         return window_show();
       }
 
@@ -242,32 +263,11 @@ namespace webview
         return {};
       }
 
-      noresult set_html_impl(const std::string& html) override
-      {
-        webkit_web_view_load_html(WEBKIT_WEB_VIEW(m_webview), html.c_str(), nullptr);
-        return {};
-      }
-
-      noresult eval_impl(const std::string& js) override
-      {
-        // URI is null before content has begun loading.
-        if (!webkit_web_view_get_uri(WEBKIT_WEB_VIEW(m_webview)))
-        {
-          return {};
-        }
-#if (WEBKIT_MAJOR_VERSION == 2 && WEBKIT_MINOR_VERSION >= 40) || WEBKIT_MAJOR_VERSION > 2
-        webkit_web_view_evaluate_javascript(
-            WEBKIT_WEB_VIEW(m_webview), js.c_str(), static_cast<gssize>(js.size()), nullptr, nullptr, nullptr, nullptr, nullptr);
-#else
-        webkit_web_view_run_javascript(WEBKIT_WEB_VIEW(m_webview), js.c_str(), nullptr, nullptr, nullptr);
-#endif
-        return {};
-      }
-
       user_script add_user_script_impl(const std::string& js) override
       {
         auto* wk_script =
             webkit_user_script_new(js.c_str(), WEBKIT_USER_CONTENT_INJECT_TOP_FRAME, WEBKIT_USER_SCRIPT_INJECT_AT_DOCUMENT_START, nullptr, nullptr);
+
         webkit_user_content_manager_add_script(m_user_content_manager, wk_script);
         user_script script{
             js,
@@ -277,6 +277,7 @@ namespace webview
                                     delete p;
                                   }}
         };
+
         webkit_user_script_unref(wk_script);
         return script;
       }
@@ -290,6 +291,7 @@ namespace webview
       {
         auto* wk_first = first.get_impl().get_native();
         auto* wk_second = second.get_impl().get_native();
+
         return wk_first == wk_second;
       }
 
@@ -322,14 +324,15 @@ namespace webview
       void window_init(void* window)
       {
         m_window = static_cast<GtkWidget*>(window);
+
         if (owns_window())
         {
           if (!gtk_compat::init_check())
-          {
-            throw exception{WEBVIEW_ERROR_UNSPECIFIED, "GTK init failed"};
-          }
+            throw exception{webview_error::UNSPECIFIED, "GTK init failed"};
+
           m_window = gtk_compat::window_new();
           on_window_created();
+
           auto on_window_destroy = +[](GtkWidget*, gpointer arg)
           {
             auto* w = static_cast<gtk_webkit_engine*>(arg);
@@ -338,10 +341,13 @@ namespace webview
           };
           g_signal_connect(G_OBJECT(m_window), "destroy", G_CALLBACK(on_window_destroy), this);
         }
+
         webkit_dmabuf::apply_webkit_dmabuf_workaround();
+
         // Initialize webview widget
         m_webview = webkit_web_view_new();
         g_object_ref_sink(m_webview);
+
         WebKitUserContentManager* manager = m_user_content_manager = webkit_web_view_get_user_content_manager(WEBKIT_WEB_VIEW(m_webview));
         webkitgtk_compat::connect_script_message_received(manager,
                                                           "__webview__",
@@ -349,6 +355,7 @@ namespace webview
                                                           {
                                                             on_message(r);
                                                           });
+
         webkitgtk_compat::user_content_manager_register_script_message_handler(manager, "__webview__");
         add_init_script("(message) => window.webkit.messageHandlers.__webview__.postMessage(message)");
       }
@@ -357,6 +364,7 @@ namespace webview
       {
         WebKitSettings* settings = webkit_web_view_get_settings(WEBKIT_WEB_VIEW(m_webview));
         webkit_settings_set_javascript_can_access_clipboard(settings, true);
+
         if (debug)
         {
           webkit_settings_set_enable_write_console_messages_to_stdout(settings, true);
@@ -367,9 +375,8 @@ namespace webview
       noresult window_show()
       {
         if (m_is_window_shown)
-        {
           return {};
-        }
+
         gtk_compat::window_set_child(GTK_WINDOW(m_window), GTK_WIDGET(m_webview));
         gtk_compat::widget_set_visible(GTK_WIDGET(m_webview), true);
 
@@ -378,11 +385,13 @@ namespace webview
           gtk_widget_grab_focus(GTK_WIDGET(m_webview));
           gtk_compat::widget_set_visible(GTK_WIDGET(m_window), true);
         }
+
         m_is_window_shown = true;
+
         return {};
       }
 
-      void run_event_loop_while(std::function<bool()> fn) override
+      void run_event_loop_while(const std::function<bool()>& fn) override
       {
         while (fn())
         {
@@ -400,7 +409,6 @@ namespace webview
   } // namespace detail
 
   using browser_engine = detail::gtk_webkit_engine;
-
 } // namespace webview
 
 #endif // defined(WEBVIEW_PLATFORM_LINUX) && defined(WEBVIEW_GTK)
