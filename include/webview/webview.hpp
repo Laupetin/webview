@@ -28,7 +28,6 @@
 
 #include "backends.hpp"
 #include "errors.hpp"
-#include "json_deprecated.hpp"
 #include "macros.hpp"
 #include "types.hpp"
 #include "version.hpp"
