@@ -17,7 +17,6 @@ It supports two-way JavaScript bindings (to call JavaScript from C/C++ and to ca
 Platform | Technologies
 -------- | ------------
 Linux    | [GTK][gtk], [WebKitGTK][webkitgtk]
-macOS    | Cocoa, [WebKit][webkit]
 Windows  | [Windows API][win32-api], [WebView2][ms-webview2]
 
 ## Documentation
@@ -26,9 +25,10 @@ The most up-to-date documentation is right in the source code. Improving the doc
 
 ## Prerequisites
 
-Your compiler must support minimum C++11.
+Your compiler must support minimum C++20.
 
-This project uses CMake and Ninja, and while recommended for your convenience, these tools aren't required for using the library.
+This project provides its code as headers only.
+All you need to do is to include the headers
 
 ### Linux and BSD
 
@@ -67,9 +67,6 @@ The [GTK][gtk] and [WebKitGTK][webkitgtk] libraries are required for development
     * `gtk4 webkitgtk-6.0`
     * `gtk+-3.0 webkit2gtk-4.1`
     * `gtk+-3.0 webkit2gtk-4.0`
-  * Link libraries: `dl`
-* macOS:
-  * Link frameworks: `WebKit`
   * Link libraries: `dl`
 * Windows:
   * [WebView2 from NuGet](https://www.nuget.org/packages/Microsoft.Web.WebView2).
@@ -237,11 +234,6 @@ Place either the amalgamated `webview.h` header or all of the individual files i
 Build the project on your chosen platform.
 
 <details>
-  <summary>macOS</summary>
-  <pre><code>c++ main.cc -O2 --std=c++11 -Ilibs -framework WebKit -ldl -o example</code></pre>
-</details>
-
-<details>
   <summary>Linux</summary>
   <pre><code>c++ main.cc -O2 --std=c++11 -Ilibs $(pkg-config --cflags --libs gtk+-3.0 webkit2gtk-4.1) -ldl -o example</code></pre>
 </details>
@@ -345,7 +337,6 @@ Name                   | Description
 Name                   | Description
 ----                   | -----------
 `WEBVIEW_GTK`          | Compile the GTK/WebKitGTK backend.
-`WEBVIEW_COCOA`        | Compile the Cocoa/WebKit backend.
 `WEBVIEW_EDGE`         | Compile the Win32/WebView2 backend.
 
 #### Windows-specific Options
