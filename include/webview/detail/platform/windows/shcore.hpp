@@ -26,8 +26,6 @@
 #ifndef WEBVIEW_PLATFORM_WINDOWS_SHCORE_HPP
 #define WEBVIEW_PLATFORM_WINDOWS_SHCORE_HPP
 
-#if defined(__cplusplus) && !defined(WEBVIEW_HEADER)
-
 #include "../../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_WINDOWS)
@@ -50,8 +48,7 @@ namespace webview::detail::shcore_symbols
   using SetProcessDpiAwareness_t = HRESULT(WINAPI*)(PROCESS_DPI_AWARENESS);
 
   constexpr auto SetProcessDpiAwareness = library_symbol<SetProcessDpiAwareness_t>("SetProcessDpiAwareness");
-}
+} // namespace webview::detail::shcore_symbols
 
 #endif // defined(WEBVIEW_PLATFORM_WINDOWS)
-#endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)
 #endif // WEBVIEW_PLATFORM_WINDOWS_SHCORE_HPP

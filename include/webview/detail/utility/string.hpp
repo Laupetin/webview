@@ -26,8 +26,6 @@
 #ifndef WEBVIEW_DETAIL_UTILITY_STRING_HPP
 #define WEBVIEW_DETAIL_UTILITY_STRING_HPP
 
-#if defined(__cplusplus) && !defined(WEBVIEW_HEADER)
-
 #include <string>
 
 #if defined(_WIN32)
@@ -86,7 +84,6 @@ namespace webview::detail
     return std::string();
   }
 #endif
-}
+} // namespace webview::detail
 
-#endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)
 #endif // WEBVIEW_DETAIL_UTILITY_STRING_HPP

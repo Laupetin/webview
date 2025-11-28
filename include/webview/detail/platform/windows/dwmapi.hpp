@@ -26,8 +26,6 @@
 #ifndef WEBVIEW_PLATFORM_WINDOWS_DWMAPI_HPP
 #define WEBVIEW_PLATFORM_WINDOWS_DWMAPI_HPP
 
-#if defined(__cplusplus) && !defined(WEBVIEW_HEADER)
-
 #include "../../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_WINDOWS)
@@ -55,8 +53,7 @@ namespace webview::detail::dwmapi_symbols
   using DwmSetWindowAttribute_t = HRESULT(WINAPI*)(HWND, DWORD, LPCVOID, DWORD);
 
   constexpr auto DwmSetWindowAttribute = library_symbol<DwmSetWindowAttribute_t>("DwmSetWindowAttribute");
-}
+} // namespace webview::detail::dwmapi_symbols
 
 #endif // defined(WEBVIEW_PLATFORM_WINDOWS)
-#endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)
 #endif // WEBVIEW_PLATFORM_WINDOWS_DWMAPI_HPP

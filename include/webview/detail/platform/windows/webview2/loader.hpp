@@ -26,8 +26,6 @@
 #ifndef WEBVIEW_BACKENDS_WEBVIEW2_LOADER_HPP
 #define WEBVIEW_BACKENDS_WEBVIEW2_LOADER_HPP
 
-#if defined(__cplusplus) && !defined(WEBVIEW_HEADER)
-
 #include "../../../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_WINDOWS) && defined(WEBVIEW_EDGE)
@@ -113,7 +111,7 @@ namespace webview::detail
     namespace webview2_symbols
     {
       using CreateWebViewEnvironmentWithOptionsInternal_t =
-      HRESULT(STDMETHODCALLTYPE*)(bool, webview2_runtime_type, PCWSTR, IUnknown*, ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler*);
+          HRESULT(STDMETHODCALLTYPE*)(bool, webview2_runtime_type, PCWSTR, IUnknown*, ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler*);
       using DllCanUnloadNow_t = HRESULT(STDMETHODCALLTYPE*)();
 
       static constexpr auto CreateWebViewEnvironmentWithOptionsInternal =
@@ -140,7 +138,7 @@ namespace webview::detail
 
     class loader
     {
-    public:
+  public:
       HRESULT create_environment_with_options(PCWSTR browser_dir,
                                               PCWSTR user_data_dir,
                                               ICoreWebView2EnvironmentOptions* env_options,
@@ -163,7 +161,7 @@ namespace webview::detail
       }
 
       HRESULT
-        get_available_browser_version_string(const PCWSTR browser_dir, LPWSTR* version) const
+      get_available_browser_version_string(const PCWSTR browser_dir, LPWSTR* version) const
       {
 #if WEBVIEW_MSWEBVIEW2_EXPLICIT_LINK == 1
         if (m_lib.is_loaded())
@@ -181,7 +179,7 @@ namespace webview::detail
 #endif // WEBVIEW_MSWEBVIEW2_EXPLICIT_LINK
       }
 
-    private:
+  private:
 #if WEBVIEW_MSWEBVIEW2_BUILTIN_IMPL == 1
       struct client_info_t
       {
@@ -193,10 +191,12 @@ namespace webview::detail
         client_info_t() = default;
 
         client_info_t(const bool found, std::wstring dll_path, std::wstring version, const webview2_runtime_type runtime_type)
-          : found(found),
-            dll_path(std::move(dll_path)),
-            version(std::move(version)),
-            runtime_type(runtime_type) {}
+            : found(found),
+              dll_path(std::move(dll_path)),
+              version(std::move(version)),
+              runtime_type(runtime_type)
+        {
+        }
       };
 
       HRESULT create_environment_with_options_impl(const PCWSTR browser_dir,
@@ -222,7 +222,7 @@ namespace webview::detail
       }
 
       HRESULT
-        get_available_browser_version_string_impl(const PCWSTR browser_dir, LPWSTR* version) const
+      get_available_browser_version_string_impl(const PCWSTR browser_dir, LPWSTR* version) const
       {
         if (!version)
           return -1;
@@ -351,15 +351,13 @@ namespace webview::detail
 
       static constexpr auto message_received = cast_info_t<ICoreWebView2WebMessageReceivedEventHandler>{IID_ICoreWebView2WebMessageReceivedEventHandler};
 
-      static constexpr auto permission_requested =
-          cast_info_t<ICoreWebView2PermissionRequestedEventHandler>{IID_ICoreWebView2PermissionRequestedEventHandler};
+      static constexpr auto permission_requested = cast_info_t<ICoreWebView2PermissionRequestedEventHandler>{IID_ICoreWebView2PermissionRequestedEventHandler};
 
       static constexpr auto add_script_to_execute_on_document_created_completed =
           cast_info_t<ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler>{IID_ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler};
     } // namespace cast_info
   } // namespace mswebview2
-}
+} // namespace webview::detail
 
 #endif // defined(WEBVIEW_PLATFORM_WINDOWS) && defined(WEBVIEW_EDGE)
-#endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)
 #endif // WEBVIEW_BACKENDS_WEBVIEW2_LOADER_HPP

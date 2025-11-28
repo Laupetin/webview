@@ -26,8 +26,6 @@
 #ifndef WEBVIEW_PLATFORM_WINDOWS_IID_HPP
 #define WEBVIEW_PLATFORM_WINDOWS_IID_HPP
 
-#if defined(__cplusplus) && !defined(WEBVIEW_HEADER)
-
 #include "../../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_WINDOWS)
@@ -69,8 +67,7 @@ namespace webview::detail
 
     return ptr;
   }
-}
+} // namespace webview::detail
 
 #endif // defined(WEBVIEW_PLATFORM_WINDOWS)
-#endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)
 #endif // WEBVIEW_PLATFORM_WINDOWS_IID_HPP

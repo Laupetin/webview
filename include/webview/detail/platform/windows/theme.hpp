@@ -26,8 +26,6 @@
 #ifndef WEBVIEW_PLATFORM_WINDOWS_THEME_HPP
 #define WEBVIEW_PLATFORM_WINDOWS_THEME_HPP
 
-#if defined(__cplusplus) && !defined(WEBVIEW_HEADER)
-
 #include "../../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_WINDOWS)
@@ -67,8 +65,7 @@ namespace webview::detail
         fn(window, dwmapi_symbols::DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_V10_0_19041, &use_dark_mode, sizeof(use_dark_mode));
     }
   }
-}
+} // namespace webview::detail
 
 #endif // defined(WEBVIEW_PLATFORM_WINDOWS)
-#endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)
 #endif // WEBVIEW_PLATFORM_WINDOWS_THEME_HPP

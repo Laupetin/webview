@@ -26,8 +26,6 @@
 #ifndef WEBVIEW_DETAIL_BASIC_RESULT_HPP
 #define WEBVIEW_DETAIL_BASIC_RESULT_HPP
 
-#if defined(__cplusplus) && !defined(WEBVIEW_HEADER)
-
 #include "exceptions.hpp"
 
 #include <optional>
@@ -37,25 +35,35 @@ namespace webview::detail
 {
   template<typename Value, typename Error, typename Exception> class basic_result
   {
-  public:
+public:
     using value_type = Value;
     using error_type = Error;
     using exception_type = Exception;
 
     basic_result()
-      : basic_result(value_type{}) {}
+        : basic_result(value_type{})
+    {
+    }
 
     basic_result(const value_type& value)
-      : m_value{value} {}
+        : m_value{value}
+    {
+    }
 
     basic_result(value_type&& value)
-      : m_value{std::forward<value_type>(value)} {}
+        : m_value{std::forward<value_type>(value)}
+    {
+    }
 
     basic_result(const error_type& error)
-      : m_error{error} {}
+        : m_error{error}
+    {
+    }
 
     basic_result(error_type&& error)
-      : m_error{std::forward<error_type>(error)} {}
+        : m_error{std::forward<error_type>(error)}
+    {
+    }
 
     bool ok() const
     {
@@ -96,14 +104,14 @@ namespace webview::detail
       return m_error.get();
     }
 
-  private:
+private:
     std::optional<value_type> m_value;
     std::optional<error_type> m_error;
   };
 
   template<typename Error, typename Exception> class basic_result<void, Error, Exception>
   {
-  public:
+public:
     using value_type = void;
     using error_type = Error;
     using exception_type = Exception;
@@ -111,7 +119,9 @@ namespace webview::detail
     basic_result() = default;
 
     basic_result(error_type&& error)
-      : m_error{std::forward<error_type>(error)} {}
+        : m_error{std::forward<error_type>(error)}
+    {
+    }
 
     bool ok() const
     {
@@ -139,11 +149,10 @@ namespace webview::detail
       return *m_error;
     }
 
-  private:
+private:
     std::optional<error_type> m_error;
   };
 
-}
+} // namespace webview::detail
 
-#endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)
 #endif // WEBVIEW_DETAIL_BASIC_RESULT_HPP

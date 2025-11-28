@@ -26,8 +26,6 @@
 #ifndef WEBVIEW_DETAIL_NATIVE_LIBRARY_HPP
 #define WEBVIEW_DETAIL_NATIVE_LIBRARY_HPP
 
-#if defined(__cplusplus) && !defined(WEBVIEW_HEADER)
-
 #include "utility/string.hpp"
 
 #include <string>
@@ -46,18 +44,20 @@ namespace webview::detail
   // Holds a symbol name and associated type for code clarity.
   template<typename T> class library_symbol
   {
-  public:
+public:
     using type = T;
 
     constexpr explicit library_symbol(const char* name)
-      : m_name(name) {}
+        : m_name(name)
+    {
+    }
 
     constexpr const char* get_name() const
     {
       return m_name;
     }
 
-  private:
+private:
     const char* m_name;
   };
 
@@ -65,15 +65,19 @@ namespace webview::detail
   // symbols.
   class native_library
   {
-  public:
+public:
     native_library() = default;
 
     explicit native_library(const std::string& name)
-      : m_handle(load_library(name)) {}
+        : m_handle(load_library(name))
+    {
+    }
 
 #ifdef _WIN32
     explicit native_library(const std::wstring& name)
-      : m_handle(load_library(name)) {}
+        : m_handle(load_library(name))
+    {
+    }
 #endif
 
     ~native_library()
@@ -162,7 +166,7 @@ namespace webview::detail
       return !!handle;
     }
 
-  private:
+private:
 #ifdef _WIN32
     using mod_handle_t = HMODULE;
 #else
@@ -188,7 +192,6 @@ namespace webview::detail
     mod_handle_t m_handle{};
   };
 
-}
+} // namespace webview::detail
 
-#endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)
 #endif // WEBVIEW_DETAIL_NATIVE_LIBRARY_HPP

@@ -26,14 +26,13 @@
 #ifndef WEBVIEW_DETAIL_EXCEPTIONS_HPP
 #define WEBVIEW_DETAIL_EXCEPTIONS_HPP
 
-#if defined(__cplusplus) && !defined(WEBVIEW_HEADER)
-
 #include <exception>
 
 namespace webview::detail
 {
-  class bad_access : public std::exception {};
-}
+  class bad_access : public std::exception
+  {
+  };
+} // namespace webview::detail
 
-#endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)
 #endif // WEBVIEW_DETAIL_EXCEPTIONS_HPP

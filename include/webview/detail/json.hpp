@@ -26,8 +26,6 @@
 #ifndef WEBVIEW_DETAIL_JSON_HPP
 #define WEBVIEW_DETAIL_JSON_HPP
 
-#if defined(__cplusplus) && !defined(WEBVIEW_HEADER)
-
 #include <cassert>
 #include <cstring>
 #include <string>
@@ -267,11 +265,11 @@ namespace webview::detail
       if (is_json_special_char(c))
       {
         static constexpr char SPECIAL_ESCAPE_TABLE[256] = "\0\0\0\0\0\0\0\0btn\0fr\0\0"
-            "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-            "\0\0\"\0\0\0\0\0\0\0\0\0\0\0\0\0"
-            "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-            "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
-            "\0\0\0\0\0\0\0\0\0\0\0\0\\";
+                                                          "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+                                                          "\0\0\"\0\0\0\0\0\0\0\0\0\0\0\0\0"
+                                                          "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+                                                          "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"
+                                                          "\0\0\0\0\0\0\0\0\0\0\0\0\\";
 
         result += '\\';
         // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
@@ -398,7 +396,6 @@ namespace webview::detail
     return "";
   }
 
-}
+} // namespace webview::detail
 
-#endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)
 #endif // WEBVIEW_DETAIL_JSON_HPP

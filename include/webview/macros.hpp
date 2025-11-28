@@ -77,9 +77,6 @@
 /// Evaluates to @c TRUE if the given error code indicates failure.
 #define WEBVIEW_FAILED(error) ((int)(error) < 0)
 
-#ifdef __cplusplus
-#ifndef WEBVIEW_HEADER
-
 #if defined(__APPLE__)
 #define WEBVIEW_PLATFORM_DARWIN
 #elif defined(__unix__)
@@ -113,8 +110,5 @@
 #ifndef WEBVIEW_DEPRECATED_PRIVATE
 #define WEBVIEW_DEPRECATED_PRIVATE WEBVIEW_DEPRECATED("Private API should not be used")
 #endif
-
-#endif // WEBVIEW_HEADER
-#endif // __cplusplus
 
 #endif // WEBVIEW_MACROS_HPP

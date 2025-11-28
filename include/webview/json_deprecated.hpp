@@ -26,8 +26,6 @@
 #ifndef WEBVIEW_JSON_HPP
 #define WEBVIEW_JSON_HPP
 
-#if defined(__cplusplus) && !defined(WEBVIEW_HEADER)
-
 #include "detail/json.hpp"
 #include "macros.hpp"
 
@@ -57,5 +55,4 @@ namespace webview
 
 } // namespace webview
 
-#endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)
 #endif // WEBVIEW_JSON_HPP

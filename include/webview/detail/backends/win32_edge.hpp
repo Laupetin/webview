@@ -26,8 +26,6 @@
 #ifndef WEBVIEW_BACKENDS_WIN32_EDGE_HPP
 #define WEBVIEW_BACKENDS_WIN32_EDGE_HPP
 
-#if defined(__cplusplus) && !defined(WEBVIEW_HEADER)
-
 #include "../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_WINDOWS) && defined(WEBVIEW_EDGE)
@@ -93,11 +91,13 @@ namespace webview
     {
       using webview2_com_handler_cb_t = std::function<void(ICoreWebView2Controller*, ICoreWebView2* webview)>;
 
-    public:
+  public:
       webview2_com_handler(const HWND hwnd, msg_cb_t msgCb, webview2_com_handler_cb_t cb)
-        : m_window(hwnd),
-          m_msg_cb(std::move(msgCb)),
-          m_cb(std::move(cb)) {}
+          : m_window(hwnd),
+            m_msg_cb(std::move(msgCb)),
+            m_cb(std::move(cb))
+      {
+      }
 
       virtual ~webview2_com_handler() = default;
       webview2_com_handler(const webview2_com_handler& other) = delete;
@@ -246,7 +246,7 @@ namespace webview
         m_cb(nullptr, nullptr);
       }
 
-    private:
+  private:
       HWND m_window;
       msg_cb_t m_msg_cb;
       webview2_com_handler_cb_t m_cb;
@@ -259,11 +259,13 @@ namespace webview
 
     class webview2_user_script_added_handler : public ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler
     {
-    public:
+  public:
       using callback_fn = std::function<void(HRESULT errorCode, LPCWSTR id)>;
 
       explicit webview2_user_script_added_handler(callback_fn cb)
-        : m_cb(std::move(cb)) {}
+          : m_cb(std::move(cb))
+      {
+      }
 
       virtual ~webview2_user_script_added_handler() = default;
       webview2_user_script_added_handler(const webview2_user_script_added_handler& other) = delete;
@@ -304,17 +306,19 @@ namespace webview
         return S_OK;
       }
 
-    private:
+  private:
       callback_fn m_cb;
       std::atomic<ULONG> m_ref_count{1};
     };
 
     class user_script::impl
     {
-    public:
+  public:
       impl(const std::wstring& id, const std::wstring& code)
-        : m_id{id},
-          m_code{code} {}
+          : m_id{id},
+            m_code{code}
+      {
+      }
 
       impl(const impl&) = delete;
       impl& operator=(const impl&) = delete;
@@ -331,16 +335,16 @@ namespace webview
         return m_code;
       }
 
-    private:
+  private:
       std::wstring m_id;
       std::wstring m_code;
     };
 
     class win32_edge_engine : public engine_base
     {
-    public:
+  public:
       win32_edge_engine(const bool debug, void* window)
-        : engine_base(!window)
+          : engine_base(!window)
       {
         window_init(window);
         window_settings(debug);
@@ -370,9 +374,9 @@ namespace webview
         // Replace wndproc to avoid callbacks and other bad things during
         // destruction.
         const auto wnd_proc = reinterpret_cast<LONG_PTR>(+[](const HWND hwnd, const UINT msg, const WPARAM wp, const LPARAM lp) -> LRESULT
-        {
-          return DefWindowProcW(hwnd, msg, wp, lp);
-        });
+                                                         {
+                                                           return DefWindowProcW(hwnd, msg, wp, lp);
+                                                         });
 
         if (m_widget)
           SetWindowLongPtrW(m_widget, GWLP_WNDPROC, wnd_proc);
@@ -511,7 +515,7 @@ namespace webview
         return {};
       }
 
-    protected:
+  protected:
       noresult dispatch_impl(dispatch_fn_t f) override
       {
         PostMessageW(m_message_window, WM_APP, 0, reinterpret_cast<LPARAM>(new dispatch_fn_t(std::move(f))));
@@ -546,12 +550,12 @@ namespace webview
         bool done{};
 
         webview2_user_script_added_handler handler{[&](const HRESULT res, const LPCWSTR id)
-        {
-          if (SUCCEEDED(res))
-            script_id = id;
+                                                   {
+                                                     if (SUCCEEDED(res))
+                                                       script_id = id;
 
-          done = true;
-        }};
+                                                     done = true;
+                                                   }};
 
         const auto res = m_webview->AddScriptToExecuteOnDocumentCreated(wide_js.c_str(), &handler);
         if (SUCCEEDED(res))
@@ -601,7 +605,7 @@ namespace webview
         return first_id == second_id;
       }
 
-    private:
+  private:
       void window_init(void* window)
       {
         if (!is_webview2_available())
@@ -614,12 +618,8 @@ namespace webview
           m_com_init = com_init_wrapper(COINIT_APARTMENTTHREADED);
           enable_dpi_awareness();
 
-          const auto icon = static_cast<HICON>(LoadImage(h_instance,
-                                                         IDI_APPLICATION,
-                                                         IMAGE_ICON,
-                                                         GetSystemMetrics(SM_CXICON),
-                                                         GetSystemMetrics(SM_CYICON),
-                                                         LR_DEFAULTCOLOR));
+          const auto icon =
+              static_cast<HICON>(LoadImage(h_instance, IDI_APPLICATION, IMAGE_ICON, GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON), LR_DEFAULTCOLOR));
 
           // Create a top-level window.
           WNDCLASSEXW wc;
@@ -1049,5 +1049,4 @@ namespace webview
 } // namespace webview
 
 #endif // defined(WEBVIEW_PLATFORM_WINDOWS) && defined(WEBVIEW_EDGE)
-#endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)
 #endif // WEBVIEW_BACKENDS_WIN32_EDGE_HPP

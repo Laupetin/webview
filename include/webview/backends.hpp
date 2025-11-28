@@ -26,8 +26,6 @@
 #ifndef WEBVIEW_BACKENDS_HPP
 #define WEBVIEW_BACKENDS_HPP
 
-#if defined(__cplusplus) && !defined(WEBVIEW_HEADER)
-
 #include "detail/backends/gtk_webkitgtk.hpp"
 #include "detail/backends/win32_edge.hpp"
 
@@ -36,5 +34,4 @@ namespace webview
   using webview = browser_engine;
 }
 
-#endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)
 #endif // WEBVIEW_BACKENDS_HPP

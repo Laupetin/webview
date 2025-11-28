@@ -26,8 +26,6 @@
 #ifndef WEBVIEW_PLATFORM_WINDOWS_NTDLL_HPP
 #define WEBVIEW_PLATFORM_WINDOWS_NTDLL_HPP
 
-#if defined(__cplusplus) && !defined(WEBVIEW_HEADER)
-
 #include "../../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_WINDOWS)
@@ -45,8 +43,7 @@ namespace webview::detail::ntdll_symbols
   using RtlGetVersion_t = unsigned int /*NTSTATUS*/ (WINAPI*)(RTL_OSVERSIONINFOW*);
 
   constexpr auto RtlGetVersion = library_symbol<RtlGetVersion_t>("RtlGetVersion");
-}
+} // namespace webview::detail::ntdll_symbols
 
 #endif // defined(WEBVIEW_PLATFORM_WINDOWS)
-#endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)
 #endif // WEBVIEW_PLATFORM_WINDOWS_NTDLL_HPP

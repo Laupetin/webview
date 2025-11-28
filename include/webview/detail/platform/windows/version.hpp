@@ -26,8 +26,6 @@
 #ifndef WEBVIEW_PLATFORM_WINDOWS_VERSION_HPP
 #define WEBVIEW_PLATFORM_WINDOWS_VERSION_HPP
 
-#if defined(__cplusplus) && !defined(WEBVIEW_HEADER)
-
 #include "../../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_WINDOWS)
@@ -70,8 +68,8 @@ namespace webview::detail
 
     auto end = version.end();
     auto sb = version.begin(); // subrange begin
-    auto se = sb; // subrange end
-    unsigned int ci = 0; // component index
+    auto se = sb;              // subrange end
+    unsigned int ci = 0;       // component index
     std::array<unsigned int, 4> components{};
 
     while (sb != end && se != end && ci < components.size())
@@ -152,8 +150,7 @@ namespace webview::detail
 
     return false;
   }
-}
+} // namespace webview::detail
 
 #endif // defined(WEBVIEW_PLATFORM_WINDOWS)
-#endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)
 #endif // WEBVIEW_PLATFORM_WINDOWS_VERSION_HPP

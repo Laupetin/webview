@@ -26,8 +26,6 @@
 #ifndef WEBVIEW_PLATFORM_WINDOWS_COM_INIT_WRAPPER_HPP
 #define WEBVIEW_PLATFORM_WINDOWS_COM_INIT_WRAPPER_HPP
 
-#if defined(__cplusplus) && !defined(WEBVIEW_HEADER)
-
 #include "../../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_WINDOWS)
@@ -59,15 +57,15 @@
 namespace webview::detail
 {
   /**
-     * A wrapper around COM library initialization. Calls CoInitializeEx in the
-     * constructor and CoUninitialize in the destructor.
-     *
-     * @exception exception Thrown if CoInitializeEx has already been called with a
-     * different concurrency model.
-     */
+   * A wrapper around COM library initialization. Calls CoInitializeEx in the
+   * constructor and CoUninitialize in the destructor.
+   *
+   * @exception exception Thrown if CoInitializeEx has already been called with a
+   * different concurrency model.
+   */
   class com_init_wrapper
   {
-  public:
+public:
     com_init_wrapper() = default;
 
     explicit com_init_wrapper(const DWORD dwCoInit)
@@ -119,12 +117,11 @@ namespace webview::detail
       return *this;
     }
 
-  private:
+private:
     bool m_initialized = false;
   };
 
-}
+} // namespace webview::detail
 
 #endif // defined(WEBVIEW_PLATFORM_WINDOWS)
-#endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)
 #endif // WEBVIEW_PLATFORM_WINDOWS_COM_INIT_WRAPPER_HPP

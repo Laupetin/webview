@@ -26,8 +26,6 @@
 #ifndef WEBVIEW_DETAIL_ENGINE_BASE_HPP
 #define WEBVIEW_DETAIL_ENGINE_BASE_HPP
 
-#if defined(__cplusplus) && !defined(WEBVIEW_HEADER)
-
 #include "../errors.hpp"
 #include "../types.hpp"
 #include "json.hpp"
@@ -47,10 +45,12 @@ namespace webview::detail
 
   class binding_ctx_t
   {
-  public:
+public:
     binding_ctx_t(binding_t callback, void* arg)
-      : m_callback(std::move(callback)),
-        m_arg(arg) {}
+        : m_callback(std::move(callback)),
+          m_arg(arg)
+    {
+    }
 
     void call(std::string id, std::string args) const
     {
@@ -58,7 +58,7 @@ namespace webview::detail
         m_callback(std::move(id), std::move(args), m_arg);
     }
 
-  private:
+private:
     // This function is called upon execution of the bound JS function
     binding_t m_callback;
     // This user-supplied argument is passed to the callback
@@ -67,9 +67,11 @@ namespace webview::detail
 
   class engine_base
   {
-  public:
+public:
     explicit engine_base(const bool owns_window)
-      : m_owns_window(owns_window) {}
+        : m_owns_window(owns_window)
+    {
+    }
 
     virtual ~engine_base() = default;
 
@@ -180,7 +182,7 @@ namespace webview::detail
 
     virtual noresult eval(const std::string& js) = 0;
 
-  protected:
+protected:
     virtual noresult navigate_impl(const std::string& url) = 0;
     virtual noresult dispatch_impl(std::function<void()> f) = 0;
     virtual noresult set_window_size_impl(int width, int height) = 0;
@@ -435,7 +437,7 @@ namespace webview::detail
       return m_owns_window;
     }
 
-  private:
+private:
     static std::atomic_uint& window_ref_count()
     {
       static std::atomic_uint ref_count{0};
@@ -470,5 +472,4 @@ namespace webview::detail
 
 } // namespace webview::detail
 
-#endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)
 #endif // WEBVIEW_DETAIL_ENGINE_BASE_HPP

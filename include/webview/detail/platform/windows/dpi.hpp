@@ -26,8 +26,6 @@
 #ifndef WEBVIEW_PLATFORM_WINDOWS_DPI_HPP
 #define WEBVIEW_PLATFORM_WINDOWS_DPI_HPP
 
-#if defined(__cplusplus) && !defined(WEBVIEW_HEADER)
-
 #include "../../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_WINDOWS)
@@ -70,7 +68,7 @@ namespace webview::detail
     if (const auto fn = user32.get(user32_symbols::SetProcessDpiAwarenessContext))
     {
       const auto dpi_awareness = reinterpret_cast<user32_symbols::DPI_AWARENESS_CONTEXT>(
-        is_per_monitor_v2_awareness_available() ? user32_symbols::dpi_awareness::per_monitor_v2_aware : user32_symbols::dpi_awareness::per_monitor_aware);
+          is_per_monitor_v2_awareness_available() ? user32_symbols::dpi_awareness::per_monitor_v2_aware : user32_symbols::dpi_awareness::per_monitor_aware);
 
       if (fn(dpi_awareness))
         return true;
@@ -164,8 +162,7 @@ namespace webview::detail
     return {frame_width, frame_height};
   }
 
-}
+} // namespace webview::detail
 
 #endif // defined(WEBVIEW_PLATFORM_WINDOWS)
-#endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)
 #endif // WEBVIEW_PLATFORM_WINDOWS_DPI_HPP

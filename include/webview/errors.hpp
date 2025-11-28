@@ -26,8 +26,6 @@
 #ifndef WEBVIEW_ERRORS_HPP
 #define WEBVIEW_ERRORS_HPP
 
-#if defined(__cplusplus) && !defined(WEBVIEW_HEADER)
-
 #include <exception>
 #include <string>
 
@@ -69,10 +67,12 @@ namespace webview
 
   class error_info
   {
-  public:
+public:
     explicit error_info(const webview_error code, const std::string& message = {}) noexcept
-      : m_code(code),
-        m_message(message) {}
+        : m_code(code),
+          m_message(message)
+    {
+    }
 
     error_info() = default;
 
@@ -86,27 +86,35 @@ namespace webview
       return m_message;
     }
 
-  private:
+private:
     webview_error m_code{webview_error::UNSPECIFIED};
     std::string m_message;
   };
 
   class exception : public std::exception
   {
-  public:
+public:
     exception(const webview_error code, const std::string& message, std::exception_ptr cause) noexcept
-      : exception(error_info(code, message), std::move(cause)) {}
+        : exception(error_info(code, message), std::move(cause))
+    {
+    }
 
     exception(const webview_error code, const std::string& message) noexcept
-      : exception(error_info(code, message)) {}
+        : exception(error_info(code, message))
+    {
+    }
 
     exception(const error_info& error, std::exception_ptr cause) noexcept
-      : m_error(error),
-        // NOLINTNEXTLINE(bugprone-throw-keyword-missing)
-        m_cause(std::move(cause)) {}
+        : m_error(error),
+          // NOLINTNEXTLINE(bugprone-throw-keyword-missing)
+          m_cause(std::move(cause))
+    {
+    }
 
     explicit exception(const error_info& error) noexcept
-      : m_error(error) {}
+        : m_error(error)
+    {
+    }
 
     exception() = default;
 
@@ -125,12 +133,11 @@ namespace webview
       return m_error.message().c_str();
     }
 
-  private:
+private:
     error_info m_error{webview_error::UNSPECIFIED};
     std::exception_ptr m_cause;
   };
 
 } // namespace webview
 
-#endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)
 #endif // WEBVIEW_ERRORS_HPP

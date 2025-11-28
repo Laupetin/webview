@@ -26,8 +26,6 @@
 #ifndef WEBVIEW_PLATFORM_WINDOWS_REG_KEY_HPP
 #define WEBVIEW_PLATFORM_WINDOWS_REG_KEY_HPP
 
-#if defined(__cplusplus) && !defined(WEBVIEW_HEADER)
-
 #include "../../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_WINDOWS)
@@ -49,7 +47,7 @@ namespace webview::detail
 {
   class reg_key
   {
-  public:
+public:
     explicit reg_key(const HKEY root_key, const wchar_t* sub_key, const DWORD options, const REGSAM sam_desired)
     {
       HKEY handle;
@@ -60,7 +58,9 @@ namespace webview::detail
     }
 
     explicit reg_key(const HKEY root_key, const std::wstring& sub_key, const DWORD options, const REGSAM sam_desired)
-      : reg_key(root_key, sub_key.c_str(), options, sam_desired) {}
+        : reg_key(root_key, sub_key.c_str(), options, sam_desired)
+    {
+    }
 
     virtual ~reg_key()
     {
@@ -134,12 +134,11 @@ namespace webview::detail
       return static_cast<unsigned int>(*reinterpret_cast<DWORD*>(data.data()));
     }
 
-  private:
+private:
     HKEY m_handle = nullptr;
   };
 
-}
+} // namespace webview::detail
 
 #endif // defined(WEBVIEW_PLATFORM_WINDOWS)
-#endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)
 #endif // WEBVIEW_PLATFORM_WINDOWS_REG_KEY_HPP

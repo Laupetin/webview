@@ -26,8 +26,6 @@
 #ifndef WEBVIEW_PLATFORM_LINUX_GTK_COMPAT_HPP
 #define WEBVIEW_PLATFORM_LINUX_GTK_COMPAT_HPP
 
-#if defined(__cplusplus) && !defined(WEBVIEW_HEADER)
-
 #include "../../../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_LINUX) && defined(WEBVIEW_GTK)
@@ -147,5 +145,4 @@ namespace webview
 } // namespace webview
 
 #endif // defined(WEBVIEW_PLATFORM_LINUX) && defined(WEBVIEW_GTK)
-#endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)
 #endif // WEBVIEW_PLATFORM_LINUX_GTK_COMPAT_HPP

@@ -26,8 +26,6 @@
 #ifndef WEBVIEW_PLATFORM_WINDOWS_USER32_HPP
 #define WEBVIEW_PLATFORM_WINDOWS_USER32_HPP
 
-#if defined(__cplusplus) && !defined(WEBVIEW_HEADER)
-
 #include "../../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_WINDOWS)
@@ -67,8 +65,7 @@ namespace webview::detail::user32_symbols
   constexpr auto AdjustWindowRectExForDpi = library_symbol<AdjustWindowRectExForDpi_t>("AdjustWindowRectExForDpi");
   constexpr auto GetWindowDpiAwarenessContext = library_symbol<GetWindowDpiAwarenessContext_t>("GetWindowDpiAwarenessContext");
   constexpr auto AreDpiAwarenessContextsEqual = library_symbol<AreDpiAwarenessContextsEqual_t>("AreDpiAwarenessContextsEqual");
-}
+} // namespace webview::detail::user32_symbols
 
 #endif // defined(WEBVIEW_PLATFORM_WINDOWS)
-#endif // defined(__cplusplus) && !defined(WEBVIEW_HEADER)
 #endif // WEBVIEW_PLATFORM_WINDOWS_USER32_HPP
