@@ -151,8 +151,19 @@ workspace "Webview"
                 }
             filter {}
 
-            filter { "system:linux", "action:gmake" }
-                buildoptions { "`pkg-config --cflags gtk4 webkitgtk-6.0`" }
-                linkoptions { "`pkg-config --libs gtk4 webkitgtk-6.0`" }
-            filter {}
+		    if os.istarget("linux") then
+                if os.findlib("gtk-4") ~= nil then
+                    filter { "system:linux", "action:gmake" }
+                        buildoptions { "`pkg-config --cflags gtk4 webkitgtk-6.0`" }
+                        linkoptions { "`pkg-config --libs gtk4 webkitgtk-6.0`" }
+                    filter {}
+                elseif os.findlib("gtk-3") ~= nil then
+                    filter { "system:linux", "action:gmake" }
+                        buildoptions { "`pkg-config --cflags gtk+-3.0 webkit2gtk-4.1`" }
+                        linkoptions { "`pkg-config --libs gtk+-3.0 webkit2gtk-4.1`" }
+                    filter {}
+                else
+                    premake.error("Must have gtk3 or gtk4 installed")
+                end
+            end
     end
