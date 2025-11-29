@@ -26,7 +26,7 @@
 #ifndef WEBVIEW_BACKENDS_WIN32_EDGE_HPP
 #define WEBVIEW_BACKENDS_WIN32_EDGE_HPP
 
-#include "../../macros.hpp"
+#include "../../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_WINDOWS) && defined(WEBVIEW_EDGE)
 
@@ -39,19 +39,19 @@
 // ====================================================================
 //
 
-#include "../../errors.hpp"
-#include "../../types.hpp"
-#include "../engine_base.hpp"
-#include "../native_library.hpp"
-#include "../platform/windows/com_init_wrapper.hpp"
-#include "../platform/windows/dpi.hpp"
-#include "../platform/windows/iid.hpp"
-#include "../platform/windows/reg_key.hpp"
-#include "../platform/windows/theme.hpp"
-#include "../platform/windows/version.hpp"
-#include "../platform/windows/webview2/loader.hpp"
-#include "../user_script.hpp"
-#include "../utility/string.hpp"
+#include "../../../errors.hpp"
+#include "../../../types.hpp"
+#include "../../native_library.hpp"
+#include "../../platform/windows/com_init_wrapper.hpp"
+#include "../../platform/windows/dpi.hpp"
+#include "../../platform/windows/iid.hpp"
+#include "../../platform/windows/reg_key.hpp"
+#include "../../platform/windows/theme.hpp"
+#include "../../platform/windows/version.hpp"
+#include "../../platform/windows/webview2/loader.hpp"
+#include "../../user_script.hpp"
+#include "../../utility/string.hpp"
+#include "../../window_base.hpp"
 
 #include <atomic>
 #include <cstdlib>
@@ -91,11 +91,13 @@ namespace webview
     {
       using webview2_com_handler_cb_t = std::function<void(ICoreWebView2Controller*, ICoreWebView2* webview)>;
 
-    public:
+  public:
       webview2_com_handler(const HWND hwnd, msg_cb_t msgCb, webview2_com_handler_cb_t cb)
-        : m_window(hwnd),
-          m_msg_cb(std::move(msgCb)),
-          m_cb(std::move(cb)) {}
+          : m_window(hwnd),
+            m_msg_cb(std::move(msgCb)),
+            m_cb(std::move(cb))
+      {
+      }
 
       virtual ~webview2_com_handler() = default;
       webview2_com_handler(const webview2_com_handler& other) = delete;
@@ -244,7 +246,7 @@ namespace webview
         m_cb(nullptr, nullptr);
       }
 
-    private:
+  private:
       HWND m_window;
       msg_cb_t m_msg_cb;
       webview2_com_handler_cb_t m_cb;
@@ -257,11 +259,13 @@ namespace webview
 
     class webview2_user_script_added_handler : public ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler
     {
-    public:
+  public:
       using callback_fn = std::function<void(HRESULT errorCode, LPCWSTR id)>;
 
       explicit webview2_user_script_added_handler(callback_fn cb)
-        : m_cb(std::move(cb)) {}
+          : m_cb(std::move(cb))
+      {
+      }
 
       virtual ~webview2_user_script_added_handler() = default;
       webview2_user_script_added_handler(const webview2_user_script_added_handler& other) = delete;
@@ -302,17 +306,19 @@ namespace webview
         return S_OK;
       }
 
-    private:
+  private:
       callback_fn m_cb;
       std::atomic<ULONG> m_ref_count{1};
     };
 
     class user_script::impl
     {
-    public:
+  public:
       impl(const std::wstring& id, const std::wstring& code)
-        : m_id{id},
-          m_code{code} {}
+          : m_id{id},
+            m_code{code}
+      {
+      }
 
       impl(const impl&) = delete;
       impl& operator=(const impl&) = delete;
@@ -329,21 +335,15 @@ namespace webview
         return m_code;
       }
 
-    private:
+  private:
       std::wstring m_id;
       std::wstring m_code;
     };
 
-    class win32_edge_engine : public engine_base
+    class win32_edge_engine : public window_base
     {
-    public:
-      win32_edge_engine(const bool debug, void* window)
-        : engine_base(!window)
-      {
-        window_init(window);
-        window_settings(debug);
-        dispatch_size_default();
-      }
+  public:
+      win32_edge_engine() = default;
 
       ~win32_edge_engine() override
       {
@@ -368,14 +368,14 @@ namespace webview
         // Replace wndproc to avoid callbacks and other bad things during
         // destruction.
         const auto wnd_proc = reinterpret_cast<LONG_PTR>(+[](const HWND hwnd, const UINT msg, const WPARAM wp, const LPARAM lp) -> LRESULT
-        {
-          return DefWindowProcW(hwnd, msg, wp, lp);
-        });
+                                                         {
+                                                           return DefWindowProcW(hwnd, msg, wp, lp);
+                                                         });
 
         if (m_widget)
           SetWindowLongPtrW(m_widget, GWLP_WNDPROC, wnd_proc);
 
-        if (m_window && owns_window())
+        if (m_window)
           SetWindowLongPtrW(m_window, GWLP_WNDPROC, wnd_proc);
 
         if (m_widget)
@@ -386,21 +386,15 @@ namespace webview
 
         if (m_window)
         {
-          if (owns_window())
-          {
-            DestroyWindow(m_window);
-            on_window_destroyed(true);
-          }
+          DestroyWindow(m_window);
+          on_window_destroyed();
 
           m_window = nullptr;
         }
 
-        if (owns_window())
-        {
-          // Not strictly needed for windows to close immediately but aligns
-          // behavior across backends.
-          deplete_run_loop_event_queue();
-        }
+        // Not strictly needed for windows to close immediately but aligns
+        // behavior across backends.
+        deplete_run_loop_event_queue();
 
         // We need the message window in order to deplete the event queue.
         if (m_message_window)
@@ -416,29 +410,12 @@ namespace webview
       win32_edge_engine(win32_edge_engine&& other) = delete;
       win32_edge_engine& operator=(win32_edge_engine&& other) = delete;
 
-      noresult run() override
-      {
-        MSG msg;
-        while (GetMessageW(&msg, nullptr, 0, 0) > 0)
-        {
-          TranslateMessage(&msg);
-          DispatchMessageW(&msg);
-        }
-        return {};
-      }
-
-      noresult terminate() override
-      {
-        PostQuitMessage(0);
-        return {};
-      }
-
       result<void*> window() override
       {
         if (m_window)
           return m_window;
 
-        return error_info{webview_error::INVALID_STATE};
+        return std::unexpected(error_info{webview_error::INVALID_STATE});
       }
 
       result<void*> widget() override
@@ -446,7 +423,7 @@ namespace webview
         if (m_widget)
           return m_widget;
 
-        return error_info{webview_error::INVALID_STATE};
+        return std::unexpected(error_info{webview_error::INVALID_STATE});
       }
 
       result<void*> browser_controller() override
@@ -454,32 +431,26 @@ namespace webview
         if (m_controller)
           return m_controller;
 
-        return error_info{webview_error::INVALID_STATE};
+        return std::unexpected(error_info{webview_error::INVALID_STATE});
       }
 
-      noresult set_title(const std::string& title) override
-      {
-        SetWindowTextW(m_window, widen_string(title).c_str());
-        return {};
-      }
-
-      noresult set_window_min(const int width, const int height) override
+      void set_window_min(const unsigned width, const unsigned height) override
       {
         m_min_size.x = width;
         m_min_size.y = height;
 
-        return window_show();
+        window_show();
       }
 
-      noresult set_window_max(const int width, const int height) override
+      void set_window_max(const unsigned width, const unsigned height) override
       {
         m_max_size.x = width;
         m_max_size.y = height;
 
-        return window_show();
+        window_show();
       }
 
-      noresult set_window_size_fixed(const bool value) override
+      void set_window_size_fixed(const bool value) override
       {
         auto style = GetWindowLong(m_window, GWL_STYLE);
         if (value)
@@ -488,8 +459,6 @@ namespace webview
           style |= (WS_THICKFRAME | WS_MAXIMIZEBOX);
 
         SetWindowLong(m_window, GWL_STYLE, style);
-
-        return {};
       }
 
       noresult eval(const std::string& js) override
@@ -497,27 +466,20 @@ namespace webview
         // TODO: Skip if no content has begun loading yet. Can't check with
         //       ICoreWebView2::get_Source because it returns "about:blank".
         const auto wide_js = widen_string(js);
-        m_webview->ExecuteScript(wide_js.c_str(), nullptr);
+        const auto res = m_webview->ExecuteScript(wide_js.c_str(), nullptr);
+        if (FAILED(res))
+          return std::unexpected(error_info{webview_error::UNSPECIFIED, "ExecuteScript failed"});
 
         return {};
       }
 
-      noresult set_html(const std::string& html) override
-      {
-        m_webview->NavigateToString(widen_string(html).c_str());
-
-        return {};
-      }
-
-    protected:
-      noresult dispatch_impl(dispatch_fn_t f) override
+  protected:
+      void dispatch_impl(dispatch_fn_t f) override
       {
         PostMessageW(m_message_window, WM_APP, 0, reinterpret_cast<LPARAM>(new dispatch_fn_t(std::move(f))));
-
-        return {};
       }
 
-      noresult set_window_size_impl(const int width, const int height) override
+      void set_window_size_impl(const int width, const int height) override
       {
         const auto dpi = get_window_dpi(m_window);
         m_dpi = dpi;
@@ -526,211 +488,195 @@ namespace webview
         const auto frame_size = make_window_frame_size(m_window, scaled_size.cx, scaled_size.cy, dpi);
         SetWindowPos(m_window, nullptr, 0, 0, frame_size.cx, frame_size.cy, SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOMOVE | SWP_FRAMECHANGED);
 
-        return window_show();
+        window_show();
+      }
+
+      noresult set_html_impl(const std::string& html) override
+      {
+        const auto res = m_webview->NavigateToString(widen_string(html).c_str());
+        if (FAILED(res))
+          return std::unexpected(error_info{webview_error::UNSPECIFIED, "NavigateToString failed"});
+
+        return {};
       }
 
       noresult navigate_impl(const std::string& url) override
       {
         const auto wide_url = widen_string(url);
-        m_webview->Navigate(wide_url.c_str());
+        const auto res = m_webview->Navigate(wide_url.c_str());
+        if (FAILED(res))
+          return std::unexpected(error_info{webview_error::UNSPECIFIED, "Navigate failed"});
 
         return {};
       }
 
-      user_script add_user_script_impl(const std::string& js) override
+      void set_title_impl(const std::string& title) override
+      {
+        SetWindowTextW(m_window, widen_string(title).c_str());
+      }
+
+      noresult add_page_init_script(const std::string& js) override
       {
         const auto wide_js = widen_string(js);
-        std::wstring script_id;
         bool done{};
 
         webview2_user_script_added_handler handler{[&](const HRESULT res, const LPCWSTR id)
-        {
-          if (SUCCEEDED(res))
-            script_id = id;
-
-          done = true;
-        }};
+                                                   {
+                                                     done = true;
+                                                   }};
 
         const auto res = m_webview->AddScriptToExecuteOnDocumentCreated(wide_js.c_str(), &handler);
         if (SUCCEEDED(res))
         {
-          // We want to guard against executing the default `set_size` prematurely
-          set_default_size_guard(true);
           // Sadly we need to pump the event loop in order to get the script ID.
           run_event_loop_while(
               [&]
               {
                 return !done;
               });
-
-          // The user's `set_size` may have been executed from the depleted event queue,
-          // and if so, guard against putting the default `set_size` back onto the queue.
-          if (!m_is_window_shown)
-          {
-            set_default_size_guard(false);
-            dispatch_size_default();
-          }
         }
-        // TODO: There's a non-zero chance that we didn't get the script ID.
-        //       We need to convey the error somehow.
-        return user_script{
-            js,
-            user_script::impl_ptr{new user_script::impl{script_id, wide_js},
-                                  [](const user_script::impl* p)
-                                  {
-                                    delete p;
-                                  }}
-        };
+
+        return {};
       }
 
-      void remove_all_user_scripts_impl(const std::list<user_script>& scripts) override
+      noresult on_window_opened_impl() override
       {
-        for (const auto& script : scripts)
-        {
-          const auto& id = script.get_impl().get_id();
-          m_webview->RemoveScriptToExecuteOnDocumentCreated(id.c_str());
-        }
+        auto result = window_init();
+        if (!result.has_value())
+          return std::move(result);
+
+        result = window_settings();
+        if (!result.has_value())
+          return std::move(result);
+
+        m_is_initialized = true;
+
+        dispatch_size_default();
+        return {};
       }
 
-      bool are_user_scripts_equal_impl(const user_script& first, const user_script& second) override
-      {
-        const auto& first_id = first.get_impl().get_id();
-        const auto& second_id = second.get_impl().get_id();
-        return first_id == second_id;
-      }
-
-    private:
-      void window_init(void* window)
+  private:
+      noresult window_init()
       {
         if (!is_webview2_available())
-          throw exception{webview_error::MISSING_DEPENDENCY, "WebView2 is unavailable"};
+          return std::unexpected(error_info{webview_error::MISSING_DEPENDENCY, "WebView2 is unavailable"});
 
         const HINSTANCE h_instance = GetModuleHandle(nullptr);
 
-        if (owns_window())
+        m_com_init = com_init_wrapper(COINIT_APARTMENTTHREADED);
+        enable_dpi_awareness();
+
+        const auto icon =
+            static_cast<HICON>(LoadImage(h_instance, IDI_APPLICATION, IMAGE_ICON, GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON), LR_DEFAULTCOLOR));
+
+        // Create a top-level window.
+        WNDCLASSEXW wc;
+        ZeroMemory(&wc, sizeof(WNDCLASSEX));
+        wc.cbSize = sizeof(WNDCLASSEX);
+        wc.hInstance = h_instance;
+        wc.lpszClassName = L"webview";
+        wc.hIcon = icon;
+        wc.lpfnWndProc = [](const HWND hwnd, const UINT msg, const WPARAM wp, const LPARAM lp) -> LRESULT
         {
-          m_com_init = com_init_wrapper(COINIT_APARTMENTTHREADED);
-          enable_dpi_awareness();
+          win32_edge_engine* w;
 
-          const auto icon =
-              static_cast<HICON>(LoadImage(h_instance, IDI_APPLICATION, IMAGE_ICON, GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON), LR_DEFAULTCOLOR));
-
-          // Create a top-level window.
-          WNDCLASSEXW wc;
-          ZeroMemory(&wc, sizeof(WNDCLASSEX));
-          wc.cbSize = sizeof(WNDCLASSEX);
-          wc.hInstance = h_instance;
-          wc.lpszClassName = L"webview";
-          wc.hIcon = icon;
-          wc.lpfnWndProc = [](const HWND hwnd, const UINT msg, const WPARAM wp, const LPARAM lp) -> LRESULT
+          if (msg == WM_NCCREATE)
           {
-            win32_edge_engine* w;
+            auto* lpcs{reinterpret_cast<LPCREATESTRUCT>(lp)};
+            w = static_cast<win32_edge_engine*>(lpcs->lpCreateParams);
+            w->m_window = hwnd;
+            SetWindowLongPtrW(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(w));
+            enable_non_client_dpi_scaling_if_needed(hwnd);
+            apply_window_theme(hwnd);
+          }
+          else
+          {
+            w = reinterpret_cast<win32_edge_engine*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
+          }
 
-            if (msg == WM_NCCREATE)
-            {
-              auto* lpcs{reinterpret_cast<LPCREATESTRUCT>(lp)};
-              w = static_cast<win32_edge_engine*>(lpcs->lpCreateParams);
-              w->m_window = hwnd;
-              SetWindowLongPtrW(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(w));
-              enable_non_client_dpi_scaling_if_needed(hwnd);
-              apply_window_theme(hwnd);
-            }
-            else
-            {
-              w = reinterpret_cast<win32_edge_engine*>(GetWindowLongPtrW(hwnd, GWLP_USERDATA));
-            }
+          if (!w)
+          {
+            return DefWindowProcW(hwnd, msg, wp, lp);
+          }
 
-            if (!w)
-            {
-              return DefWindowProcW(hwnd, msg, wp, lp);
-            }
-
-            switch (msg)
-            {
-            case WM_SIZE:
-              w->resize_widget();
-              break;
-
-            case WM_CLOSE:
-              DestroyWindow(hwnd);
-              break;
-
-            case WM_DESTROY:
-              w->m_window = nullptr;
-              SetWindowLongPtrW(hwnd, GWLP_USERDATA, 0);
-              w->on_window_destroyed();
-              break;
-
-            case WM_GETMINMAXINFO:
-            {
-              auto lpmmi = reinterpret_cast<LPMINMAXINFO>(lp);
-
-              if (w->m_max_size.x > 0 && w->m_max_size.y > 0)
-              {
-                lpmmi->ptMaxSize = w->m_max_size;
-                lpmmi->ptMaxTrackSize = w->m_max_size;
-              }
-              if (w->m_min_size.x > 0 && w->m_min_size.y > 0)
-              {
-                lpmmi->ptMinTrackSize = w->m_min_size;
-              }
-            }
+          switch (msg)
+          {
+          case WM_SIZE:
+            w->resize_widget();
             break;
 
-            case WM_GETDPISCALEDSIZE:
+          case WM_CLOSE:
+            DestroyWindow(hwnd);
+            break;
+
+          case WM_DESTROY:
+            w->m_window = nullptr;
+            SetWindowLongPtrW(hwnd, GWLP_USERDATA, 0);
+            w->on_window_destroyed();
+            break;
+
+          case WM_GETMINMAXINFO:
+          {
+            auto lpmmi = reinterpret_cast<LPMINMAXINFO>(lp);
+
+            if (w->m_max_size.x > 0 && w->m_max_size.y > 0)
             {
-              auto dpi = static_cast<int>(wp);
-              auto* size{reinterpret_cast<SIZE*>(lp)};
-              *size = w->get_scaled_size(w->m_dpi, dpi);
-              return TRUE;
+              lpmmi->ptMaxSize = w->m_max_size;
+              lpmmi->ptMaxTrackSize = w->m_max_size;
             }
-
-            case WM_DPICHANGED:
+            if (w->m_min_size.x > 0 && w->m_min_size.y > 0)
             {
-              // Windows 10: The size we get here is exactly what we supplied to WM_GETDPISCALEDSIZE.
-              // Windows 11: The size we get here is NOT what we supplied to WM_GETDPISCALEDSIZE.
-              // Due to this difference, don't use the suggested bounds.
-              const auto dpi = static_cast<int>(HIWORD(wp));
-              w->on_dpi_changed(dpi);
-              break;
+              lpmmi->ptMinTrackSize = w->m_min_size;
             }
+          }
+          break;
 
-            case WM_SETTINGCHANGE:
-            {
-              auto* area = reinterpret_cast<const wchar_t*>(lp);
-              if (area)
-                w->on_system_setting_change(area);
-              break;
-            }
+          case WM_GETDPISCALEDSIZE:
+          {
+            auto dpi = static_cast<int>(wp);
+            auto* size{reinterpret_cast<SIZE*>(lp)};
+            *size = w->get_scaled_size(w->m_dpi, dpi);
+            return TRUE;
+          }
 
-            case WM_ACTIVATE:
-              if (LOWORD(wp) != WA_INACTIVE)
-                w->focus_webview();
-              break;
+          case WM_DPICHANGED:
+          {
+            // Windows 10: The size we get here is exactly what we supplied to WM_GETDPISCALEDSIZE.
+            // Windows 11: The size we get here is NOT what we supplied to WM_GETDPISCALEDSIZE.
+            // Due to this difference, don't use the suggested bounds.
+            const auto dpi = static_cast<int>(HIWORD(wp));
+            w->on_dpi_changed(dpi);
+            break;
+          }
 
-            default:
-              return DefWindowProcW(hwnd, msg, wp, lp);
-            }
+          case WM_SETTINGCHANGE:
+          {
+            auto* area = reinterpret_cast<const wchar_t*>(lp);
+            if (area)
+              w->on_system_setting_change(area);
+            break;
+          }
 
-            return 0;
-          };
+          case WM_ACTIVATE:
+            if (LOWORD(wp) != WA_INACTIVE)
+              w->focus_webview();
+            break;
 
-          RegisterClassExW(&wc);
+          default:
+            return DefWindowProcW(hwnd, msg, wp, lp);
+          }
 
-          CreateWindowW(L"webview", L"", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 0, 0, nullptr, nullptr, h_instance, this);
+          return 0;
+        };
 
-          if (!m_window)
-            throw exception{webview_error::INVALID_STATE, "Window is null"};
+        RegisterClassExW(&wc);
 
-          on_window_created();
+        CreateWindowW(L"webview", L"", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 0, 0, nullptr, nullptr, h_instance, this);
 
-          m_dpi = get_window_dpi(m_window);
-        }
-        else
-        {
-          m_window = IsWindow(static_cast<HWND>(window)) ? static_cast<HWND>(window) : *(static_cast<HWND*>(window));
-          m_dpi = get_window_dpi(m_window);
-        }
+        if (!m_window)
+          return std::unexpected(error_info{webview_error::INVALID_STATE, "Window is null"});
+
+        m_dpi = get_window_dpi(m_window);
 
         // Create a window that WebView2 will be embedded into.
         WNDCLASSEXW widget_wc{};
@@ -779,7 +725,7 @@ namespace webview
         RegisterClassExW(&widget_wc);
         CreateWindowExW(WS_EX_CONTROLPARENT, L"webview_widget", nullptr, WS_CHILD, 0, 0, 0, 0, m_window, nullptr, h_instance, this);
         if (!m_widget)
-          throw exception{webview_error::INVALID_STATE, "Widget window is null"};
+          return std::unexpected(error_info{webview_error::INVALID_STATE, "Widget window is null"});
 
         // Create a message-only window for internal messaging.
         WNDCLASSEXW message_wc{};
@@ -830,28 +776,29 @@ namespace webview
         CreateWindowExW(0, L"webview_message", nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, nullptr, h_instance, this);
 
         if (!m_message_window)
-          throw exception{webview_error::INVALID_STATE, "Message window is null"};
+          return std::unexpected(error_info{webview_error::INVALID_STATE, "Message window is null"});
+
+        return {};
       }
 
-      void window_settings(const bool debug)
+      noresult window_settings()
       {
         auto cb = std::bind(&win32_edge_engine::on_message, this, std::placeholders::_1);
-        embed(m_widget, debug, cb).ensure_ok();
+        return embed(m_widget, cb);
       }
 
-      noresult window_show()
+      void window_show()
       {
-        if (owns_window() && !m_is_window_shown)
+        if (!m_is_window_shown)
         {
           ShowWindow(m_window, SW_SHOW);
           UpdateWindow(m_window);
           SetFocus(m_window);
           m_is_window_shown = true;
         }
-        return {};
       }
 
-      noresult embed(const HWND wnd, const bool debug, msg_cb_t cb)
+      noresult embed(const HWND wnd, msg_cb_t cb)
       {
         std::atomic_flag flag = ATOMIC_FLAG_INIT;
         flag.test_and_set();
@@ -862,7 +809,7 @@ namespace webview
 
         wchar_t data_path[MAX_PATH];
         if (!SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_APPDATA, nullptr, 0, data_path)))
-          return error_info{webview_error::UNSPECIFIED, "SHGetFolderPathW failed"};
+          return std::unexpected(error_info{webview_error::UNSPECIFIED, "SHGetFolderPathW failed"});
 
         wchar_t user_data_folder[MAX_PATH];
         PathCombineW(user_data_folder, data_path, current_exe_name);
@@ -908,32 +855,37 @@ namespace webview
         }
 
         if (got_quit_msg)
-          return error_info{webview_error::CANCELED};
+          return std::unexpected(error_info{webview_error::CANCELED});
 
         if (!m_controller || !m_webview)
-          return error_info{webview_error::INVALID_STATE};
+          return std::unexpected(error_info{webview_error::INVALID_STATE});
 
         ICoreWebView2Settings* settings = nullptr;
         auto res = m_webview->get_Settings(&settings);
         if (res != S_OK)
-          return error_info{webview_error::UNSPECIFIED, "get_Settings failed"};
+          return std::unexpected(error_info{webview_error::UNSPECIFIED, "get_Settings failed"});
 
-        res = settings->put_AreDevToolsEnabled(debug ? TRUE : FALSE);
+        res = settings->put_AreDevToolsEnabled(m_debug ? TRUE : FALSE);
         if (res != S_OK)
-          return error_info{webview_error::UNSPECIFIED, "put_AreDevToolsEnabled failed"};
+          return std::unexpected(error_info{webview_error::UNSPECIFIED, "put_AreDevToolsEnabled failed"});
 
         res = settings->put_IsStatusBarEnabled(FALSE);
         if (res != S_OK)
-          return error_info{webview_error::UNSPECIFIED, "put_IsStatusBarEnabled failed"};
+          return std::unexpected(error_info{webview_error::UNSPECIFIED, "put_IsStatusBarEnabled failed"});
 
-        add_init_script("(message) => window.chrome.webview.postMessage(message)");
+        auto res_expect = add_page_init_script(create_webview_init_script("(message) => window.chrome.webview.postMessage(message)"));
+        if (!res_expect.has_value())
+          return std::move(res_expect);
+        res_expect = add_page_init_script(create_bind_script());
+        if (!res_expect.has_value())
+          return std::move(res_expect);
+
         resize_webview();
 
         m_controller->put_IsVisible(TRUE);
         ShowWindow(m_widget, SW_SHOW);
         UpdateWindow(m_widget);
-        if (owns_window())
-          focus_webview();
+        focus_webview();
 
         return {};
       }
@@ -1039,7 +991,7 @@ namespace webview
     };
   } // namespace detail
 
-  using browser_engine = detail::win32_edge_engine;
+  using window = detail::win32_edge_engine;
 } // namespace webview
 
 #endif // defined(WEBVIEW_PLATFORM_WINDOWS) && defined(WEBVIEW_EDGE)

@@ -137,7 +137,6 @@ private:
     error_info m_error{webview_error::UNSPECIFIED};
     std::exception_ptr m_cause;
   };
-
 } // namespace webview
 
 #endif // WEBVIEW_ERRORS_HPP

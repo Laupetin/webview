@@ -32,7 +32,6 @@
 
 namespace webview::detail
 {
-
   inline int json_parse_c(const char* str, size_t size, const char* key, size_t key_size, const char** value, size_t* value_size)
   {
     enum

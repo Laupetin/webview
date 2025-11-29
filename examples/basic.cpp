@@ -2,24 +2,33 @@
 
 #include <iostream>
 
-#ifdef _WIN32
+#ifdef WEBVIEW_PLATFORM_WINDOWS
+#include <windows.h>
+#endif
+
+#ifdef WEBVIEW_PLATFORM_WINDOWS
 int WINAPI WinMain(HINSTANCE /*hInst*/, HINSTANCE /*hPrevInst*/, LPSTR /*lpCmdLine*/, int /*nCmdShow*/)
 {
 #else
 int main()
 {
 #endif
-  try
+  auto w = std::make_unique<webview::window>();
+  w->set_title("Basic Example");
+  w->set_window_size(480, 320);
+  auto result = w->set_html("Thanks for using webview!");
+  if (!result.has_value())
   {
-    webview::webview w(false, nullptr);
-    w.set_title("Basic Example");
-    w.set_window_size(480, 320);
-    w.set_html("Thanks for using webview!");
-    w.run();
+    std::cerr << "Failed to set html: " << result.error().message() << std::endl;
+    return 1;
   }
-  catch (const webview::exception& e)
+
+  webview::app app;
+
+  result = app.run(std::move(w));
+  if (!result.has_value())
   {
-    std::cerr << e.what() << '\n';
+    std::cerr << "Failed to run app: " << result.error().message() << std::endl;
     return 1;
   }
 

@@ -1,4 +1,4 @@
-require("premake", ">=5.0.0-beta5")
+require("premake", ">=5.0.0-beta8")
 
 function installWebview2()
 	local version = "1.0.3595.46"
@@ -54,12 +54,8 @@ workspace "Webview"
     objdir "%{wks.location}/obj"
     symbols "On"
     systemversion "latest"
-    cppdialect "C++20"
-    largeaddressaware "on"
-
-	flags {
-		"MultiProcessorCompile"
-	}
+    cppdialect "C++23"
+    multiprocessorcompile "on"
 
     configurations { 
         "Debug",
@@ -157,13 +153,8 @@ workspace "Webview"
                         buildoptions { "`pkg-config --cflags gtk4 webkitgtk-6.0`" }
                         linkoptions { "`pkg-config --libs gtk4 webkitgtk-6.0`" }
                     filter {}
-                elseif os.findlib("gtk-3") ~= nil then
-                    filter { "system:linux", "action:gmake" }
-                        buildoptions { "`pkg-config --cflags gtk+-3.0 webkit2gtk-4.1`" }
-                        linkoptions { "`pkg-config --libs gtk+-3.0 webkit2gtk-4.1`" }
-                    filter {}
                 else
-                    premake.error("Must have gtk3 or gtk4 installed")
+                    premake.error("Must have gtk4 installed")
                 end
             end
     end

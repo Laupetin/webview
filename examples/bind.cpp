@@ -17,6 +17,18 @@ constexpr auto html =
   <button id="compute">Compute</button>
   <span>Result: <span id="computeResult">(not started)</span></span>
 </div>
+<style>
+body {
+  background: #e3e3e3;
+  color: #000000;
+}
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #1c1c1c;
+    color: #ffffff;
+  }
+}
+</style>
 <script type="module">
   const getElements = ids => Object.assign({}, ...ids.map(
     id => ({ [id]: document.getElementById(id) })));
@@ -46,48 +58,54 @@ int WINAPI WinMain(HINSTANCE /*hInst*/, HINSTANCE /*hPrevInst*/, LPSTR /*lpCmdLi
 int main()
 {
 #endif
-  try
+  long count = 0;
+
+  auto w = std::make_unique<webview::window>();
+  w->set_debug(true);
+  w->set_title("Bind Example");
+  w->set_window_size(480, 320);
+
+  webview::commands c;
+
+  // A binding that counts up or down and immediately returns the new value.
+  c.add_command_sync("count",
+                     [&](webview::detail::window_base& calling_window, std::string message_json_str) -> std::string
+                     {
+                       // Imagine that req is properly parsed or use your own JSON parser.
+                       const auto direction = std::stol(message_json_str.substr(1, message_json_str.size() - 1));
+                       return std::to_string(count += direction);
+                     });
+
+  // A binding that creates a new thread and returns the result at a later time.
+  c.add_command_async("compute",
+                      [&](std::string promise_id, webview::detail::window_base& calling_window, std::string message_json_str)
+                      {
+                        // Create a thread and forget about it for the sake of simplicity.
+                        std::thread(
+                            [&, id = std::move(promise_id), req = std::move(message_json_str)]
+                            {
+                              // Simulate load.
+                              std::this_thread::sleep_for(std::chrono::seconds(1));
+                              // Imagine that req is properly parsed or use your own JSON parser.
+                              const auto* result = "42";
+                              calling_window.promise_resolve(id, result);
+                            })
+                            .detach();
+                      });
+
+  w->set_commands(c);
+  auto result = w->set_html(html);
+  if (!result.has_value())
   {
-    long count = 0;
-
-    webview::webview w(true, nullptr);
-    w.set_title("Bind Example");
-    w.set_window_size(480, 320);
-
-    // A binding that counts up or down and immediately returns the new value.
-    w.bind("count",
-           [&](const std::string& req) -> std::string
-           {
-             // Imagine that req is properly parsed or use your own JSON parser.
-             const auto direction = std::stol(req.substr(1, req.size() - 1));
-             return std::to_string(count += direction);
-           });
-
-    // A binding that creates a new thread and returns the result at a later time.
-    w.bind(
-        "compute",
-        [&](const std::string& id, const std::string& req, void* /*arg*/)
-        {
-          // Create a thread and forget about it for the sake of simplicity.
-          std::thread(
-              [&, id, req]
-              {
-                // Simulate load.
-                std::this_thread::sleep_for(std::chrono::seconds(1));
-                // Imagine that req is properly parsed or use your own JSON parser.
-                const auto* result = "42";
-                w.resolve(id, 0, result);
-              })
-              .detach();
-        },
-        nullptr);
-
-    w.set_html(html);
-    w.run();
+    std::cerr << "Failed to set html: " << result.error().message() << std::endl;
+    return 1;
   }
-  catch (const webview::exception& e)
+
+  webview::app app;
+  result = app.run(std::move(w));
+  if (!result.has_value())
   {
-    std::cerr << e.what() << '\n';
+    std::cerr << "Failed to run app: " << result.error().message() << std::endl;
     return 1;
   }
 

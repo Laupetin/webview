@@ -23,15 +23,23 @@
  * SOFTWARE.
  */
 
-#ifndef WEBVIEW_BACKENDS_HPP
-#define WEBVIEW_BACKENDS_HPP
+#pragma once
 
-#include "detail/backends/gtk_webkitgtk.hpp"
-#include "detail/backends/win32_edge.hpp"
+#ifndef WEBVIEW_APP_HPP
+#define WEBVIEW_APP_HPP
+
+#include "detail/app.hpp"
+#include "detail/commands.hpp"
+#include "detail/window.hpp"
+#include "types.hpp"
+
+#include <expected>
+#include <memory>
+#include <string>
 
 namespace webview
 {
-  using webview = browser_engine;
-}
+
+} // namespace webview
 
 #endif // WEBVIEW_BACKENDS_HPP

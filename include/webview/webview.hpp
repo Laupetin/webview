@@ -26,10 +26,14 @@
 #ifndef WEBVIEW_HPP
 #define WEBVIEW_HPP
 
-#include "backends.hpp"
+#include "app.hpp"
 #include "errors.hpp"
 #include "macros.hpp"
 #include "types.hpp"
 #include "version.hpp"
+
+#ifdef WEBVIEW_INCLUDE_IMPL
+#include "detail/impl.hpp"
+#endif
 
 #endif // WEBVIEW_HPP

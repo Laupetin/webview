@@ -9,9 +9,6 @@ The goal of the project is to create a common HTML5 UI abstraction layer for the
 
 It supports two-way JavaScript bindings (to call JavaScript from C/C++ and to call C/C++ from JavaScript).
 
-> [!NOTE]
-> Language binding for Go [has moved][webview_go]. Versions <= 0.1.1 are available in *this* repository.
-
 ## Platform Support
 
 Platform | Technologies
@@ -40,33 +37,18 @@ The [GTK][gtk] and [WebKitGTK][webkitgtk] libraries are required for development
   * WebKitGTK 6.0, GTK 4:
     * Development: `apt install libgtk-4-dev libwebkitgtk-6.0-dev`
     * Production: `apt install libgtk-4-1 libwebkitgtk-6.0-4`
-  * WebKitGTK 4.1, GTK 3, libsoup 3:
-    * Development: `apt install libgtk-3-dev libwebkit2gtk-4.1-dev`
-    * Production: `apt install libgtk-3-0 libwebkit2gtk-4.1-0`
-  * WebKitGTK 4.0, GTK 3, libsoup 2:
-    * Development: `apt install libgtk-3-dev libwebkit2gtk-4.0-dev`
-    * Production: `apt install libgtk-3-0 libwebkit2gtk-4.0-37`
 * Fedora:
   * WebKitGTK 6.0, GTK 4:
     * Development: `dnf install gtk4-devel webkitgtk6.0-devel`
     * Production: `dnf install gtk4 webkitgtk6.0`
-  * WebKitGTK 4.1, GTK 3, libsoup 3:
-    * Development: `dnf install gtk3-devel webkit2gtk4.1-devel`
-    * Production: `dnf install gtk3 webkit2gtk4.1`
-  * WebKitGTK 4.0, GTK 3, libsoup 2:
-    * Development: `dnf install gtk3-devel webkit2gtk4.0-devel`
-    * Production: `dnf install gtk3 webkit2gtk4.0`
 * FreeBSD:
   * GTK 4: `pkg install webkit2-gtk4`
-  * GTK 3: `pkg install webkit2-gtk3`
 
 #### Library Dependencies
 
 * Linux:
   * Use `pkg-config` with `--cflags` and `--libs` to get the compiler/linker options for one of these sets of modules:
     * `gtk4 webkitgtk-6.0`
-    * `gtk+-3.0 webkit2gtk-4.1`
-    * `gtk+-3.0 webkit2gtk-4.0`
   * Link libraries: `dl`
 * Windows:
   * [WebView2 from NuGet](https://www.nuget.org/packages/Microsoft.Web.WebView2).
@@ -78,9 +60,9 @@ The [GTK][gtk] and [WebKitGTK][webkitgtk] libraries are required for development
 
 ### Windows
 
-Your compiler must support C++14 and we recommend to pair it with an up-to-date Windows 10 SDK.
+Your compiler must support C++23 and we recommend to pair it with an up-to-date Windows 10 SDK.
 
-For Visual C++ we recommend Visual Studio 2022 or later. There are some [requirements when using MinGW-w64](#mingw-w64-requirements).
+For Visual C++ we recommend Visual Studio 2026 or later. There are some [requirements when using MinGW-w64](#mingw-w64-requirements).
 
 Developers and end-users must have the [WebView2 runtime][ms-webview2-rt] installed on their system for any version of Windows before Windows 11.
 

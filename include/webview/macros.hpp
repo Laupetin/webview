@@ -57,4 +57,11 @@
 #endif
 #endif
 
+#ifdef WEBVIEW_STATIC_LIB
+#define WEBVIEW_IMPL
+#else
+#define WEBVIEW_IMPL inline
+#define WEBVIEW_INCLUDE_IMPL
+#endif
+
 #endif // WEBVIEW_MACROS_HPP
