@@ -12,7 +12,7 @@ jobs:
   build-test-linux:
     strategy:
       matrix:
-        build_arch: [ x86, x64 ]
+        build_arch: [x86, x64]
         include:
           - build_arch: x64
             gtk_packages: libgtk-4-dev libwebkitgtk-6.0-dev
@@ -48,12 +48,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - uses: abel0b/setup-premake@v2.4
-        with:
-          version: "5.0.0-beta8"
-
       - name: Premake generate
-        run: premake5 gmake
+        working-directory: ${{ github.workspace }}
+        env:
+          PREMAKE_NO_PROMPT: 1
+        run: ./generate.sh
 
       - name: Build
         run: |
@@ -64,14 +63,14 @@ jobs:
   build-test-windows:
     strategy:
       matrix:
-        build_arch: [ x86, x64 ]
+        build_arch: [x86, x64]
         include:
           - build_arch: x86
             msbuild_config: Win32
           - build_arch: x64
             msbuild_config: x64
     name: Build-Test Windows ${{ matrix.build_arch }}
-    runs-on: windows-latest
+    runs-on: windows-2025-vs2026
     steps:
       - name: Install node
         uses: actions/setup-node@v6
@@ -84,13 +83,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - uses: abel0b/setup-premake@v2.4
-        with:
-          version: "5.0.0-beta8"
-
       - name: Premake generate
-        run: premake5 vs2022
+        working-directory: ${{ github.workspace }}
+        env:
+          PREMAKE_NO_PROMPT: 1
+        run: ./generate.bat
 
       - name: Build
         run: msbuild /m /p:Configuration=Release /p:Platform=${{ matrix.msbuild_config }} build
-
