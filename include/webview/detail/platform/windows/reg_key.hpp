@@ -28,7 +28,7 @@
 #ifndef WEBVIEW_PLATFORM_WINDOWS_REG_KEY_HPP
 #define WEBVIEW_PLATFORM_WINDOWS_REG_KEY_HPP
 
-#include "../../../macros.hpp"
+#include "../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_WINDOWS)
 

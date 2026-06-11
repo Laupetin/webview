@@ -28,7 +28,7 @@
 #ifndef WEBVIEW_BACKENDS_WIN32_EDGE_HPP
 #define WEBVIEW_BACKENDS_WIN32_EDGE_HPP
 
-#include "../../../macros.hpp"
+#include "../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_WINDOWS) && defined(WEBVIEW_EDGE)
 
@@ -41,8 +41,7 @@
 // ====================================================================
 //
 
-#include "../../../errors.hpp"
-#include "../../../types.hpp"
+#include "../../errors.hpp"
 #include "../../native_library.hpp"
 #include "../../platform/windows/com_init_wrapper.hpp"
 #include "../../platform/windows/dpi.hpp"
@@ -50,6 +49,7 @@
 #include "../../platform/windows/theme.hpp"
 #include "../../platform/windows/version.hpp"
 #include "../../platform/windows/webview2/loader.hpp"
+#include "../../types.hpp"
 #include "../../utility/string.hpp"
 #include "../../window_base.hpp"
 

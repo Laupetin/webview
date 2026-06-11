@@ -28,9 +28,9 @@
 #ifndef WEBVIEW_DETAIL_WINDOW_BASE_IMPL_HPP
 #define WEBVIEW_DETAIL_WINDOW_BASE_IMPL_HPP
 
-#include "../macros.hpp"
 #include "app_base.hpp"
 #include "json.hpp"
+#include "macros.hpp"
 #include "window_base.hpp"
 
 #include <format>

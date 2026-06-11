@@ -28,11 +28,11 @@
 #ifndef WEBVIEW_HPP
 #define WEBVIEW_HPP
 
-#include "app.hpp"
-#include "errors.hpp"
-#include "macros.hpp"
-#include "types.hpp"
-#include "window.hpp"
+#include "detail/app.hpp"
+#include "detail/errors.hpp"
+#include "detail/macros.hpp"
+#include "detail/types.hpp"
+#include "detail/window.hpp"
 
 #ifdef WEBVIEW_INCLUDE_IMPL
 #include "detail/impl.hpp"

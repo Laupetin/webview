@@ -3,7 +3,7 @@
 #ifndef WEBVIEW_DETAIL_PLATFORM_WINDOWS_APP_WIN32
 #define WEBVIEW_DETAIL_PLATFORM_WINDOWS_APP_WIN32
 
-#include "../../../macros.hpp"
+#include "../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_WINDOWS) && defined(WEBVIEW_EDGE)
 

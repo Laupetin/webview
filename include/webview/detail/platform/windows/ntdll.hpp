@@ -28,7 +28,7 @@
 #ifndef WEBVIEW_PLATFORM_WINDOWS_NTDLL_HPP
 #define WEBVIEW_PLATFORM_WINDOWS_NTDLL_HPP
 
-#include "../../../macros.hpp"
+#include "../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_WINDOWS)
 

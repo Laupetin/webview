@@ -3,8 +3,8 @@
 #ifndef WEBVIEW_DETAIL_COMMANDS_IMPL_HPP
 #define WEBVIEW_DETAIL_COMMANDS_IMPL_HPP
 
-#include "../macros.hpp"
 #include "commands.hpp"
+#include "macros.hpp"
 
 namespace webview
 {

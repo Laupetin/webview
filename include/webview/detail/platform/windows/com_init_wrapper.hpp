@@ -28,7 +28,7 @@
 #ifndef WEBVIEW_PLATFORM_WINDOWS_COM_INIT_WRAPPER_HPP
 #define WEBVIEW_PLATFORM_WINDOWS_COM_INIT_WRAPPER_HPP
 
-#include "../../../macros.hpp"
+#include "../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_WINDOWS)
 
@@ -41,7 +41,7 @@
 // ====================================================================
 //
 
-#include "../../../errors.hpp"
+#include "../../errors.hpp"
 
 #include <utility>
 

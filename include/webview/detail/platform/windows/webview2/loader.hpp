@@ -28,7 +28,7 @@
 #ifndef WEBVIEW_BACKENDS_WEBVIEW2_LOADER_HPP
 #define WEBVIEW_BACKENDS_WEBVIEW2_LOADER_HPP
 
-#include "../../../../macros.hpp"
+#include "../../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_WINDOWS) && defined(WEBVIEW_EDGE)
 

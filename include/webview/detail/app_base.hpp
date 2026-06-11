@@ -3,7 +3,7 @@
 #ifndef WEBVIEW_DETAIL_APP_BASE_HPP
 #define WEBVIEW_DETAIL_APP_BASE_HPP
 
-#include "../types.hpp"
+#include "types.hpp"
 #include "window_base.hpp"
 
 #include <memory>

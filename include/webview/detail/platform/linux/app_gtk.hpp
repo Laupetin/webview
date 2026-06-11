@@ -3,7 +3,7 @@
 #ifndef WEBVIEW_DETAIL_PLATFORM_LINUX_APP_GTK
 #define WEBVIEW_DETAIL_PLATFORM_LINUX_APP_GTK
 
-#include "../../../macros.hpp"
+#include "../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_LINUX) && defined(WEBVIEW_GTK)
 

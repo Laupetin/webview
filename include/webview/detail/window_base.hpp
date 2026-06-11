@@ -28,8 +28,8 @@
 #ifndef WEBVIEW_DETAIL_WINDOW_BASE_HPP
 #define WEBVIEW_DETAIL_WINDOW_BASE_HPP
 
-#include "../errors.hpp"
 #include "commands.hpp"
+#include "errors.hpp"
 
 #include <format>
 #include <functional>
