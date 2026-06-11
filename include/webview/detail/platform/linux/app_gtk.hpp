@@ -4,9 +4,10 @@
 #define WEBVIEW_DETAIL_PLATFORM_LINUX_APP_GTK
 
 #include "../../../macros.hpp"
-#include "../../app_base.hpp"
 
 #if defined(WEBVIEW_PLATFORM_LINUX) && defined(WEBVIEW_GTK)
+
+#include "../../app_base.hpp"
 
 #include <gtk/gtk.h>
 

@@ -29,9 +29,12 @@
 #define WEBVIEW_DETAIL_WINDOW_BASE_IMPL_HPP
 
 #include "../macros.hpp"
+#include "app_base.hpp"
+#include "json.hpp"
 #include "window_base.hpp"
 
 #include <format>
+#include <sstream>
 #include <string>
 
 namespace webview::detail

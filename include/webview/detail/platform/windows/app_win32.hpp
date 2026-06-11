@@ -4,9 +4,10 @@
 #define WEBVIEW_DETAIL_PLATFORM_WINDOWS_APP_WIN32
 
 #include "../../../macros.hpp"
-#include "../../app_base.hpp"
 
 #if defined(WEBVIEW_PLATFORM_WINDOWS) && defined(WEBVIEW_EDGE)
+
+#include "../../app_base.hpp"
 
 #include <windows.h>
 

@@ -29,19 +29,11 @@
 #define WEBVIEW_DETAIL_WINDOW_BASE_HPP
 
 #include "../errors.hpp"
-#include "../types.hpp"
-#include "app_base.hpp"
 #include "commands.hpp"
-#include "json.hpp"
-#include "user_script.hpp"
 
-#include <atomic>
 #include <format>
 #include <functional>
-#include <list>
-#include <map>
 #include <optional>
-#include <sstream>
 #include <string>
 
 namespace webview

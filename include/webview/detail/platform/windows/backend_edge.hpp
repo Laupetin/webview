@@ -47,18 +47,15 @@
 #include "../../platform/windows/com_init_wrapper.hpp"
 #include "../../platform/windows/dpi.hpp"
 #include "../../platform/windows/iid.hpp"
-#include "../../platform/windows/reg_key.hpp"
 #include "../../platform/windows/theme.hpp"
 #include "../../platform/windows/version.hpp"
 #include "../../platform/windows/webview2/loader.hpp"
-#include "../../user_script.hpp"
 #include "../../utility/string.hpp"
 #include "../../window_base.hpp"
 
 #include <atomic>
 #include <cstdlib>
 #include <functional>
-#include <list>
 #include <memory>
 #include <utility>
 
@@ -311,35 +308,6 @@ namespace webview
   private:
       callback_fn m_cb;
       std::atomic<ULONG> m_ref_count{1};
-    };
-
-    class user_script::impl
-    {
-  public:
-      impl(const std::wstring& id, const std::wstring& code)
-          : m_id{id},
-            m_code{code}
-      {
-      }
-
-      impl(const impl&) = delete;
-      impl& operator=(const impl&) = delete;
-      impl(impl&&) = delete;
-      impl& operator=(impl&&) = delete;
-
-      const std::wstring& get_id() const
-      {
-        return m_id;
-      }
-
-      const std::wstring& get_code() const
-      {
-        return m_code;
-      }
-
-  private:
-      std::wstring m_id;
-      std::wstring m_code;
     };
 
     class win32_edge_engine : public window_base

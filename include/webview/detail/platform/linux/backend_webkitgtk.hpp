@@ -65,34 +65,6 @@ namespace webview
 {
   namespace detail
   {
-    class user_script::impl
-    {
-  public:
-      impl(WebKitUserScript* script)
-          : m_script{script}
-      {
-        webkit_user_script_ref(script);
-      }
-
-      ~impl()
-      {
-        webkit_user_script_unref(m_script);
-      }
-
-      impl(const impl&) = delete;
-      impl& operator=(const impl&) = delete;
-      impl(impl&&) = delete;
-      impl& operator=(impl&&) = delete;
-
-      WebKitUserScript* get_native() const
-      {
-        return m_script;
-      }
-
-  private:
-      WebKitUserScript* m_script{};
-    };
-
     class gtk_webkit_engine : public window_base
     {
   public:

@@ -32,6 +32,7 @@
 #include "errors.hpp"
 #include "macros.hpp"
 #include "types.hpp"
+#include "window.hpp"
 
 #ifdef WEBVIEW_INCLUDE_IMPL
 #include "detail/impl.hpp"

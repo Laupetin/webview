@@ -28,18 +28,8 @@
 #ifndef WEBVIEW_APP_HPP
 #define WEBVIEW_APP_HPP
 
-#include "detail/app.hpp"
 #include "detail/commands.hpp"
-#include "detail/window.hpp"
-#include "types.hpp"
-
-#include <expected>
-#include <memory>
-#include <string>
-
-namespace webview
-{
-
-} // namespace webview
+#include "detail/platform/linux/app_gtk.hpp"
+#include "detail/platform/windows/app_win32.hpp"
 
 #endif // WEBVIEW_BACKENDS_HPP
