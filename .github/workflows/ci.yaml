@@ -12,24 +12,15 @@ jobs:
   build-test-linux:
     strategy:
       matrix:
-        build_arch: [x86, x64]
-        gtk_version: [gtk3, gtk4]
+        build_arch: [ x86, x64 ]
         include:
           - build_arch: x64
-            gtk_version: gtk3
-            gtk_packages: libgtk-3-dev libwebkit2gtk-4.1-dev
-          - build_arch: x64
-            gtk_version: gtk4
             gtk_packages: libgtk-4-dev libwebkitgtk-6.0-dev
           - build_arch: x86
-            gtk_version: gtk3
-            gtk_packages: libgtk-3-dev:i386 libwebkit2gtk-4.1-dev:i386
-          - build_arch: x86
-            gtk_version: gtk4
             gtk_packages: libgtk-4-dev:i386 libwebkitgtk-6.0-dev:i386
           - build_arch: x86
             additional_packages: gcc-14-multilib g++-14-multilib
-    name: Build-Test Linux ${{ matrix.build_arch }} ${{ matrix.gtk_version }}
+    name: Build-Test Linux ${{ matrix.build_arch }}
     runs-on: ubuntu-latest
     container: ubuntu:24.04
     defaults:
@@ -59,7 +50,7 @@ jobs:
 
       - uses: abel0b/setup-premake@v2.4
         with:
-          version: "5.0.0-beta7"
+          version: "5.0.0-beta8"
 
       - name: Premake generate
         run: premake5 gmake
@@ -73,7 +64,7 @@ jobs:
   build-test-windows:
     strategy:
       matrix:
-        build_arch: [x86, x64]
+        build_arch: [ x86, x64 ]
         include:
           - build_arch: x86
             msbuild_config: Win32
@@ -95,7 +86,7 @@ jobs:
 
       - uses: abel0b/setup-premake@v2.4
         with:
-          version: "5.0.0-beta7"
+          version: "5.0.0-beta8"
 
       - name: Premake generate
         run: premake5 vs2022
