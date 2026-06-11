@@ -565,7 +565,11 @@ namespace webview
 
         const HINSTANCE h_instance = GetModuleHandle(nullptr);
 
-        m_com_init = com_init_wrapper(COINIT_APARTMENTTHREADED);
+        auto com_init = com_init_wrapper::create(COINIT_APARTMENTTHREADED);
+        if (!com_init.has_value())
+          return std::unexpected(std::move(com_init).error());
+        m_com_init = std::move(com_init).value();
+
         enable_dpi_awareness();
 
         const auto icon =

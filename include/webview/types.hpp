@@ -30,15 +30,11 @@
 
 #include "errors.hpp"
 
-#include <expected>
 #include <functional>
 
 namespace webview
 {
   using dispatch_fn_t = std::function<void()>;
-
-  template<typename T> using result = std::expected<T, error_info>;
-  using noresult = std::expected<void, error_info>;
 } // namespace webview
 
 #endif // WEBVIEW_TYPES_HPP

@@ -28,7 +28,7 @@
 #ifndef WEBVIEW_ERRORS_HPP
 #define WEBVIEW_ERRORS_HPP
 
-#include <exception>
+#include <expected>
 #include <string>
 
 namespace webview
@@ -93,52 +93,8 @@ private:
     std::string m_message;
   };
 
-  class exception : public std::exception
-  {
-public:
-    exception(const webview_error code, const std::string& message, std::exception_ptr cause) noexcept
-        : exception(error_info(code, message), std::move(cause))
-    {
-    }
-
-    exception(const webview_error code, const std::string& message) noexcept
-        : exception(error_info(code, message))
-    {
-    }
-
-    exception(const error_info& error, std::exception_ptr cause) noexcept
-        : m_error(error),
-          // NOLINTNEXTLINE(bugprone-throw-keyword-missing)
-          m_cause(std::move(cause))
-    {
-    }
-
-    explicit exception(const error_info& error) noexcept
-        : m_error(error)
-    {
-    }
-
-    exception() = default;
-
-    const error_info& error() const
-    {
-      return m_error;
-    }
-
-    std::exception_ptr cause() const
-    {
-      return m_cause;
-    }
-
-    const char* what() const noexcept override
-    {
-      return m_error.message().c_str();
-    }
-
-private:
-    error_info m_error{webview_error::UNSPECIFIED};
-    std::exception_ptr m_cause;
-  };
+  template<typename T> using result = std::expected<T, error_info>;
+  using noresult = std::expected<void, error_info>;
 } // namespace webview
 
 #endif // WEBVIEW_ERRORS_HPP

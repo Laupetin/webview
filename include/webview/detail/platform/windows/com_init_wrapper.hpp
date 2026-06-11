@@ -68,9 +68,12 @@ namespace webview::detail
   class com_init_wrapper
   {
 public:
-    com_init_wrapper() = default;
+    com_init_wrapper()
+        : m_initialized(false)
+    {
+    }
 
-    explicit com_init_wrapper(const DWORD dwCoInit)
+    static result<com_init_wrapper> create(const DWORD dwCoInit)
     {
       // We can safely continue as long as COM was either successfully
       // initialized or already initialized.
@@ -80,14 +83,13 @@ public:
       {
       case S_OK:
       case S_FALSE:
-        m_initialized = true;
-        break;
+        return com_init_wrapper(true);
 
       case RPC_E_CHANGED_MODE:
-        throw exception{webview_error::INVALID_STATE, "CoInitializeEx already called with a different concurrency model"};
+        return std::unexpected(error_info{webview_error::INVALID_STATE, "CoInitializeEx already called with a different concurrency model"});
 
       default:
-        throw exception{webview_error::UNSPECIFIED, "Unexpected result from CoInitializeEx"};
+        return std::unexpected(error_info{webview_error::UNSPECIFIED, "Unexpected result from CoInitializeEx"});
       }
     }
 
@@ -120,7 +122,12 @@ public:
     }
 
 private:
-    bool m_initialized = false;
+    explicit com_init_wrapper(const bool initialized)
+        : m_initialized(initialized)
+    {
+    }
+
+    bool m_initialized;
   };
 
 } // namespace webview::detail
