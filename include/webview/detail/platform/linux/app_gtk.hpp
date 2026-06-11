@@ -1,15 +1,13 @@
 #pragma once
 
-#ifndef WEBVIEW_DETAIL_PLATFORM_LINUX_APP_GTK
-#define WEBVIEW_DETAIL_PLATFORM_LINUX_APP_GTK
+#ifndef WEBVIEW_DETAIL_PLATFORM_LINUX_APP_GTK_HPP
+#define WEBVIEW_DETAIL_PLATFORM_LINUX_APP_GTK_HPP
 
 #include "../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_LINUX) && defined(WEBVIEW_GTK)
 
 #include "../../app_base.hpp"
-
-#include <gtk/gtk.h>
 
 namespace webview
 {
@@ -18,13 +16,7 @@ namespace webview
     class app_gtk final : public app_base
     {
   protected:
-      noresult run_loop() override
-      {
-        while (!m_stop_run_loop)
-          g_main_context_iteration(nullptr, TRUE);
-
-        return {};
-      }
+      noresult run_loop() override;
     };
   } // namespace detail
 

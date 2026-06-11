@@ -39,10 +39,6 @@
 #include <objbase.h>
 #include <windows.h>
 
-#ifdef _MSC_VER
-#pragma comment(lib, "ole32.lib")
-#endif
-
 namespace webview::detail
 {
   template<typename T> struct cast_info_t

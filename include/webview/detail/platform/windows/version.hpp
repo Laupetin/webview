@@ -32,21 +32,8 @@
 
 #if defined(WEBVIEW_PLATFORM_WINDOWS)
 
-#include "ntdll.hpp"
-
 #include <array>
 #include <string>
-#include <vector>
-
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
-#include <windows.h>
-
-#ifdef _MSC_VER
-#pragma comment(lib, "version.lib")
-#endif
 
 namespace webview::detail
 {
@@ -98,60 +85,13 @@ namespace webview::detail
     return parse_version(std::basic_string<T>(version, Length));
   }
 
-  inline std::wstring get_file_version_string(const std::wstring& file_path) noexcept
-  {
-    DWORD dummy_handle; // Unused
-    const DWORD info_buffer_length = GetFileVersionInfoSizeW(file_path.c_str(), &dummy_handle);
-    if (info_buffer_length == 0)
-      return std::wstring();
-
-    std::vector<char> info_buffer;
-    info_buffer.reserve(info_buffer_length);
-    if (!GetFileVersionInfoW(file_path.c_str(), 0, info_buffer_length, info_buffer.data()))
-      return std::wstring();
-
-    const auto sub_block = L"\\StringFileInfo\\040904B0\\ProductVersion";
-    LPWSTR version = nullptr;
-    unsigned int version_length = 0;
-    if (!VerQueryValueW(info_buffer.data(), sub_block, reinterpret_cast<LPVOID*>(&version), &version_length))
-      return std::wstring();
-
-    if (!version || version_length == 0)
-      return std::wstring();
-
-    return std::wstring(version, version_length);
-  }
+  std::wstring get_file_version_string(const std::wstring& file_path) noexcept;
 
   // Compare the specified version against the OS version.
   // Returns less than 0 if the OS version is less.
   // Returns 0 if the versions are equal.
   // Returns greater than 0 if the specified version is greater.
-  inline int compare_os_version(const unsigned int major, const unsigned int minor, const unsigned int build)
-  {
-    // Use RtlGetVersion both to bypass potential issues related to
-    // VerifyVersionInfo and manifests, and because both GetVersion and
-    // GetVersionEx are deprecated.
-    const auto ntdll = native_library(L"ntdll.dll");
-    if (const auto fn = ntdll.get(ntdll_symbols::RtlGetVersion))
-    {
-      RTL_OSVERSIONINFOW vi{};
-      vi.dwOSVersionInfoSize = sizeof(vi);
-      if (fn(&vi) != 0)
-        return false;
-
-      if (vi.dwMajorVersion == major)
-      {
-        if (vi.dwMinorVersion == minor)
-          return static_cast<int>(vi.dwBuildNumber) - static_cast<int>(build);
-
-        return static_cast<int>(vi.dwMinorVersion) - static_cast<int>(minor);
-      }
-
-      return static_cast<int>(vi.dwMajorVersion) - static_cast<int>(major);
-    }
-
-    return false;
-  }
+  int compare_os_version(unsigned int major, unsigned int minor, unsigned int build);
 } // namespace webview::detail
 
 #endif // defined(WEBVIEW_PLATFORM_WINDOWS)
