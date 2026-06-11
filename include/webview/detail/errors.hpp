@@ -25,8 +25,8 @@
 
 #pragma once
 
-#ifndef WEBVIEW_ERRORS_HPP
-#define WEBVIEW_ERRORS_HPP
+#ifndef WEBVIEW_DETAIL_ERRORS_HPP
+#define WEBVIEW_DETAIL_ERRORS_HPP
 
 #include <expected>
 #include <string>
@@ -70,26 +70,14 @@ namespace webview
   class error_info
   {
 public:
-    explicit error_info(const webview_error code, const std::string& message = {}) noexcept
-        : m_code(code),
-          m_message(message)
-    {
-    }
+    error_info();
+    explicit error_info(webview_error code, std::string message = {}) noexcept;
 
-    error_info() = default;
-
-    webview_error code() const
-    {
-      return m_code;
-    }
-
-    const std::string& message() const
-    {
-      return m_message;
-    }
+    webview_error code() const;
+    const std::string& message() const;
 
 private:
-    webview_error m_code{webview_error::UNSPECIFIED};
+    webview_error m_code;
     std::string m_message;
   };
 

@@ -25,8 +25,8 @@
 
 #pragma once
 
-#ifndef WEBVIEW_MACROS_HPP
-#define WEBVIEW_MACROS_HPP
+#ifndef WEBVIEW_NATIVE_MACROS_HPP
+#define WEBVIEW_NATIVE_MACROS_HPP
 
 #if defined(__unix__)
 #define WEBVIEW_PLATFORM_LINUX

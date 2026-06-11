@@ -29,59 +29,14 @@ public:
     app_base& operator=(const app_base& other) = delete;
     app_base& operator=(app_base&& other) noexcept = delete;
 
-    void set_shutdown_behaviour(const app_shutdown_behaviour behaviour)
-    {
-      m_shutdown_behaviour = behaviour;
-    }
+    void set_shutdown_behaviour(app_shutdown_behaviour behaviour);
 
-    noresult run(std::shared_ptr<window_base> window)
-    {
-      m_stop_run_loop = false;
+    noresult run(std::shared_ptr<window_base> window);
 
-      auto result = window->on_window_opened(this);
-      if (!result.has_value())
-        return std::move(result);
-
-      {
-        std::lock_guard lock(m_window_mutex);
-        if (m_shutdown_behaviour == app_shutdown_behaviour::on_all_windows_closed)
-          m_windows.emplace_back(std::move(window));
-        else
-          m_main_window = std::move(window);
-      }
-
-      return run_loop();
-    }
-
-    virtual void terminate()
-    {
-      m_stop_run_loop = true;
-    }
+    virtual void terminate();
 
 protected:
-    void on_window_closed(const window_base* window)
-    {
-      std::lock_guard lock(m_window_mutex);
-      if (m_main_window.get() == window)
-      {
-        terminate();
-        m_main_window.reset();
-      }
-      else
-      {
-        const auto found_window = std::ranges::find_if(m_windows,
-                                                       [&window](const std::shared_ptr<window_base>& maybe_target_window)
-                                                       {
-                                                         return maybe_target_window.get() == window;
-                                                       });
-        if (found_window != m_windows.end())
-        {
-          m_windows.erase(found_window);
-          if (m_windows.empty() && !m_main_window)
-            terminate();
-        }
-      }
-    }
+    void on_window_closed(const window_base* window);
 
     virtual noresult run_loop() = 0;
 

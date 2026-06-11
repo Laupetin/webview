@@ -25,8 +25,8 @@
 
 #pragma once
 
-#ifndef WEBVIEW_TYPES_HPP
-#define WEBVIEW_TYPES_HPP
+#ifndef WEBVIEW_DETAIL_TYPES_HPP
+#define WEBVIEW_DETAIL_TYPES_HPP
 
 #include "errors.hpp"
 

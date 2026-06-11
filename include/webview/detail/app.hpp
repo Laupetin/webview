@@ -25,8 +25,8 @@
 
 #pragma once
 
-#ifndef WEBVIEW_APP_HPP
-#define WEBVIEW_APP_HPP
+#ifndef WEBVIEW_DETAIL_APP_HPP
+#define WEBVIEW_DETAIL_APP_HPP
 
 #include "commands.hpp"
 #include "platform/linux/app_gtk.hpp"

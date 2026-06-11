@@ -30,61 +30,14 @@
 
 #include <string>
 
-#if defined(_WIN32)
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include <windows.h>
-#endif
-
 namespace webview::detail
 {
 #if defined(_WIN32)
   // Converts a narrow (UTF-8-encoded) string into a wide (UTF-16-encoded) string.
-  inline std::wstring widen_string(const std::string& input)
-  {
-    if (input.empty())
-      return std::wstring();
-
-    constexpr UINT code_page = CP_UTF8;
-    constexpr DWORD flags = MB_ERR_INVALID_CHARS;
-    const auto input_c = input.c_str();
-    const auto input_length = static_cast<int>(input.size());
-    const auto required_length = MultiByteToWideChar(code_page, flags, input_c, input_length, nullptr, 0);
-
-    if (required_length > 0)
-    {
-      std::wstring output(static_cast<std::size_t>(required_length), L'\0');
-      if (MultiByteToWideChar(code_page, flags, input_c, input_length, &output[0], required_length) > 0)
-        return output;
-    }
-
-    // Failed to convert string from UTF-8 to UTF-16
-    return std::wstring();
-  }
+  inline std::wstring widen_string(const std::string& input);
 
   // Converts a wide (UTF-16-encoded) string into a narrow (UTF-8-encoded) string.
-  inline std::string narrow_string(const std::wstring& input)
-  {
-    if (input.empty())
-      return std::string();
-
-    constexpr UINT code_page = CP_UTF8;
-    constexpr DWORD flags = WC_ERR_INVALID_CHARS;
-    const auto input_c = input.c_str();
-    const auto input_length = static_cast<int>(input.size());
-    const auto required_length = WideCharToMultiByte(code_page, flags, input_c, input_length, nullptr, 0, nullptr, nullptr);
-
-    if (required_length > 0)
-    {
-      std::string output(static_cast<std::size_t>(required_length), '\0');
-      if (WideCharToMultiByte(code_page, flags, input_c, input_length, &output[0], required_length, nullptr, nullptr) > 0)
-        return output;
-    }
-
-    // Failed to convert string from UTF-16 to UTF-8
-    return std::string();
-  }
+  std::string narrow_string(const std::wstring& input);
 #endif
 } // namespace webview::detail
 
