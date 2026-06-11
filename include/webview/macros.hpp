@@ -28,20 +28,7 @@
 #ifndef WEBVIEW_MACROS_HPP
 #define WEBVIEW_MACROS_HPP
 
-/// @name Used internally
-/// @{
-
-/// Utility macro for stringifying a macro argument.
-#define WEBVIEW_STRINGIFY(x) #x
-
-/// Utility macro for stringifying the result of a macro argument expansion.
-#define WEBVIEW_EXPAND_AND_STRINGIFY(x) WEBVIEW_STRINGIFY(x)
-
-/// @}
-
-#if defined(__APPLE__)
-#define WEBVIEW_PLATFORM_DARWIN
-#elif defined(__unix__)
+#if defined(__unix__)
 #define WEBVIEW_PLATFORM_LINUX
 #elif defined(_WIN32)
 #define WEBVIEW_PLATFORM_WINDOWS
