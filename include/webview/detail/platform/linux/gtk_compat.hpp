@@ -28,7 +28,7 @@
 #ifndef WEBVIEW_PLATFORM_LINUX_GTK_COMPAT_HPP
 #define WEBVIEW_PLATFORM_LINUX_GTK_COMPAT_HPP
 
-#include "../../../macros.hpp"
+#include "../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_LINUX) && defined(WEBVIEW_GTK)
 
