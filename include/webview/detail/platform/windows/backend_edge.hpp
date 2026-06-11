@@ -23,6 +23,8 @@
  * SOFTWARE.
  */
 
+#pragma once
+
 #ifndef WEBVIEW_BACKENDS_WIN32_EDGE_HPP
 #define WEBVIEW_BACKENDS_WIN32_EDGE_HPP
 

@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef WEBVIEW_COMPAT_EVENTTOKEN_HPP
 #define WEBVIEW_COMPAT_EVENTTOKEN_HPP
 #ifdef _WIN32

@@ -23,6 +23,8 @@
  * SOFTWARE.
  */
 
+#pragma once
+
 #ifndef WEBVIEW_HPP
 #define WEBVIEW_HPP
 

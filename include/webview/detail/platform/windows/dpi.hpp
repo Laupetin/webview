@@ -23,6 +23,8 @@
  * SOFTWARE.
  */
 
+#pragma once
+
 #ifndef WEBVIEW_PLATFORM_WINDOWS_DPI_HPP
 #define WEBVIEW_PLATFORM_WINDOWS_DPI_HPP
 

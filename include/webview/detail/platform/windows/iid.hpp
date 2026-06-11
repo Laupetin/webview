@@ -23,6 +23,8 @@
  * SOFTWARE.
  */
 
+#pragma once
+
 #ifndef WEBVIEW_PLATFORM_WINDOWS_IID_HPP
 #define WEBVIEW_PLATFORM_WINDOWS_IID_HPP
 

@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef WEBVIEW_DETAIL_COMMANDS_HPP
 #define WEBVIEW_DETAIL_COMMANDS_HPP
 
