@@ -3,8 +3,8 @@
 #ifndef WEBVIEW_PLUGIN_DETAIL_TITLE_HANDLER_LINUX_HPP
 #define WEBVIEW_PLUGIN_DETAIL_TITLE_HANDLER_LINUX_HPP
 
-#include "../../detail/macros.hpp"
-#include "../title_handler.hpp"
+#include "../../../plugin/title_handler.hpp"
+#include "../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_LINUX) && defined(WEBVIEW_GTK)
 #ifdef WEBVIEW_INCLUDE_IMPL

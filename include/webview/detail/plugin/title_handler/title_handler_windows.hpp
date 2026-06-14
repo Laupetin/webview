@@ -3,13 +3,13 @@
 #ifndef WEBVIEW_PLUGIN_DETAIL_TITLE_HANDLER_WINDOWS_HPP
 #define WEBVIEW_PLUGIN_DETAIL_TITLE_HANDLER_WINDOWS_HPP
 
-#include "../../detail/macros.hpp"
-#include "../title_handler.hpp"
+#include "../../../plugin/title_handler.hpp"
+#include "../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_WINDOWS) && defined(WEBVIEW_EDGE)
 #ifdef WEBVIEW_INCLUDE_IMPL
 
-#include "../../detail/platform/windows/webview2/loader.hpp"
+#include "../../platform/windows/webview2/loader.hpp"
 
 #include <Windows.h>
 #include <wrl/event.h>

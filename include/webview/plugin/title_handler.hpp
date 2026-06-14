@@ -17,7 +17,7 @@ public:
   };
 } // namespace webview
 
-#include "detail/title_handler_linux.hpp"
-#include "detail/title_handler_windows.hpp"
+#include "../detail/plugin/title_handler/title_handler_linux.hpp"
+#include "../detail/plugin/title_handler/title_handler_windows.hpp"
 
 #endif
