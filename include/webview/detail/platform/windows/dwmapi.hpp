@@ -23,10 +23,12 @@
  * SOFTWARE.
  */
 
-#ifndef WEBVIEW_PLATFORM_WINDOWS_DWMAPI_HPP
-#define WEBVIEW_PLATFORM_WINDOWS_DWMAPI_HPP
+#pragma once
 
-#include "../../../macros.hpp"
+#ifndef WEBVIEW_DETAIL_PLATFORM_WINDOWS_DWMAPI_HPP
+#define WEBVIEW_DETAIL_PLATFORM_WINDOWS_DWMAPI_HPP
+
+#include "../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_WINDOWS)
 

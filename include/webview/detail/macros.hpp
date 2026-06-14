@@ -23,20 +23,34 @@
  * SOFTWARE.
  */
 
-#ifndef WEBVIEW_TYPES_HPP
-#define WEBVIEW_TYPES_HPP
+#pragma once
 
-#include "detail/basic_result.hpp"
-#include "errors.hpp"
+#ifndef WEBVIEW_NATIVE_MACROS_HPP
+#define WEBVIEW_NATIVE_MACROS_HPP
 
-#include <functional>
+#if defined(__unix__)
+#define WEBVIEW_PLATFORM_LINUX
+#elif defined(_WIN32)
+#define WEBVIEW_PLATFORM_WINDOWS
+#else
+#error "Unable to detect current platform"
+#endif
 
-namespace webview
-{
-  using dispatch_fn_t = std::function<void()>;
+#if !defined(WEBVIEW_GTK) && !defined(WEBVIEW_EDGE)
+#if defined(WEBVIEW_PLATFORM_LINUX)
+#define WEBVIEW_GTK
+#elif defined(WEBVIEW_PLATFORM_WINDOWS)
+#define WEBVIEW_EDGE
+#else
+#error "please, specify webview backend"
+#endif
+#endif
 
-  template<typename T> using result = detail::basic_result<T, error_info, exception>;
-  using noresult = detail::basic_result<void, error_info, exception>;
-} // namespace webview
+#ifdef WEBVIEW_STATIC_LIB
+#define WEBVIEW_IMPL
+#else
+#define WEBVIEW_IMPL inline
+#define WEBVIEW_INCLUDE_IMPL
+#endif
 
-#endif // WEBVIEW_TYPES_HPP
+#endif // WEBVIEW_MACROS_HPP

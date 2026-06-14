@@ -23,35 +23,23 @@
  * SOFTWARE.
  */
 
+#pragma once
+
 #ifndef WEBVIEW_PLATFORM_LINUX_WEBKITGTK_COMPAT_HPP
 #define WEBVIEW_PLATFORM_LINUX_WEBKITGTK_COMPAT_HPP
 
-#include "../../../../macros.hpp"
+#include "../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_LINUX) && defined(WEBVIEW_GTK)
 
 #include <functional>
 #include <gtk/gtk.h>
-#include <string>
-
-#if GTK_MAJOR_VERSION >= 4
-
 #include <jsc/jsc.h>
+#include <string>
 #include <webkit/webkit.h>
 
 #ifdef GDK_WINDOWING_X11
 #include <gdk/x11/gdkx.h>
-#endif
-
-#elif GTK_MAJOR_VERSION >= 3
-
-#include <JavaScriptCore/JavaScript.h>
-#include <webkit2/webkit2.h>
-
-#ifdef GDK_WINDOWING_X11
-#include <gdk/gdkx.h>
-#endif
-
 #endif
 
 namespace webview
@@ -65,11 +53,7 @@ namespace webview
     class webkitgtk_compat
     {
   public:
-#if GTK_MAJOR_VERSION >= 4
       using wk_handler_js_value_t = JSCValue;
-#else
-      using wk_handler_js_value_t = WebKitJavascriptResult;
-#endif
 
       using on_script_message_received_t = std::function<void(WebKitUserContentManager*, const std::string&)>;
 
@@ -105,37 +89,11 @@ namespace webview
         return s;
       }
 
-#if GTK_MAJOR_VERSION < 4
-      static std::string get_string_from_js_result(WebKitJavascriptResult* r)
-      {
-#if (WEBKIT_MAJOR_VERSION == 2 && WEBKIT_MINOR_VERSION >= 22) || WEBKIT_MAJOR_VERSION > 2
-        JSCValue* value = webkit_javascript_result_get_js_value(r);
-        return get_string_from_js_result(value);
-#else
-        JSGlobalContextRef ctx = webkit_javascript_result_get_global_context(r);
-        JSValueRef value = webkit_javascript_result_get_value(r);
-        JSStringRef js = JSValueToStringCopy(ctx, value, nullptr);
-        size_t n = JSStringGetMaximumUTF8CStringSize(js);
-        char* cs = g_new(char, n);
-        JSStringGetUTF8CString(js, cs, n);
-        JSStringRelease(js);
-        std::string s{cs};
-        g_free(cs);
-        return s;
-#endif
-      }
-#endif
-
       static void user_content_manager_register_script_message_handler(WebKitUserContentManager* manager, const gchar* name)
       {
-#if GTK_MAJOR_VERSION >= 4
         webkit_user_content_manager_register_script_message_handler(manager, name, nullptr);
-#else
-        webkit_user_content_manager_register_script_message_handler(manager, name);
-#endif
       }
     };
-
   } // namespace detail
 } // namespace webview
 

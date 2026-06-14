@@ -23,38 +23,18 @@
  * SOFTWARE.
  */
 
-#ifndef WEBVIEW_MACROS_HPP
-#define WEBVIEW_MACROS_HPP
+#pragma once
 
-/// @name Used internally
-/// @{
+#ifndef WEBVIEW_DETAIL_TYPES_HPP
+#define WEBVIEW_DETAIL_TYPES_HPP
 
-/// Utility macro for stringifying a macro argument.
-#define WEBVIEW_STRINGIFY(x) #x
+#include "errors.hpp"
 
-/// Utility macro for stringifying the result of a macro argument expansion.
-#define WEBVIEW_EXPAND_AND_STRINGIFY(x) WEBVIEW_STRINGIFY(x)
+#include <functional>
 
-/// @}
+namespace webview
+{
+  using dispatch_fn_t = std::function<void()>;
+} // namespace webview
 
-#if defined(__APPLE__)
-#define WEBVIEW_PLATFORM_DARWIN
-#elif defined(__unix__)
-#define WEBVIEW_PLATFORM_LINUX
-#elif defined(_WIN32)
-#define WEBVIEW_PLATFORM_WINDOWS
-#else
-#error "Unable to detect current platform"
-#endif
-
-#if !defined(WEBVIEW_GTK) && !defined(WEBVIEW_EDGE)
-#if defined(WEBVIEW_PLATFORM_LINUX)
-#define WEBVIEW_GTK
-#elif defined(WEBVIEW_PLATFORM_WINDOWS)
-#define WEBVIEW_EDGE
-#else
-#error "please, specify webview backend"
-#endif
-#endif
-
-#endif // WEBVIEW_MACROS_HPP
+#endif // WEBVIEW_TYPES_HPP

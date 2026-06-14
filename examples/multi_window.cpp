@@ -1,0 +1,63 @@
+#include "webview/webview.hpp"
+
+#include <format>
+#include <iostream>
+
+#ifdef WEBVIEW_PLATFORM_WINDOWS
+#include <windows.h>
+#endif
+
+std::shared_ptr<webview::window> create_sample_window(const int index)
+{
+  auto w = std::make_shared<webview::window>();
+  w->set_title(std::format("Multi window {}", index));
+  w->set_window_size(480, 320);
+  w->set_debug(true);
+  auto result = w->set_html(std::format("This is window {}", index));
+  if (!result.has_value())
+  {
+    std::cerr << "Failed to set html: " << result.error().message() << std::endl;
+    exit(1);
+  }
+
+  return w;
+}
+
+#ifdef WEBVIEW_PLATFORM_WINDOWS
+int WINAPI WinMain(HINSTANCE /*hInst*/, HINSTANCE /*hPrevInst*/, LPSTR /*lpCmdLine*/, int /*nCmdShow*/)
+{
+#else
+int main()
+{
+#endif
+
+  webview::app app;
+  app.set_shutdown_behaviour(webview::app_shutdown_behaviour::on_all_windows_closed);
+
+  auto w0 = create_sample_window(0);
+
+  auto w1 = create_sample_window(1);
+  auto result = app.open_window(w1);
+  if (!result.has_value())
+  {
+    std::cerr << "Failed to run app: " << result.error().message() << std::endl;
+    return 1;
+  }
+
+  auto w2 = create_sample_window(2);
+  result = app.open_window(w2);
+  if (!result.has_value())
+  {
+    std::cerr << "Failed to run app: " << result.error().message() << std::endl;
+    return 1;
+  }
+
+  result = app.run(std::move(w0));
+  if (!result.has_value())
+  {
+    std::cerr << "Failed to run app: " << result.error().message() << std::endl;
+    return 1;
+  }
+
+  return 0;
+}

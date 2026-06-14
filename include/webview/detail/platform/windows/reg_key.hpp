@@ -23,15 +23,16 @@
  * SOFTWARE.
  */
 
-#ifndef WEBVIEW_PLATFORM_WINDOWS_REG_KEY_HPP
-#define WEBVIEW_PLATFORM_WINDOWS_REG_KEY_HPP
+#pragma once
 
-#include "../../../macros.hpp"
+#ifndef WEBVIEW_DETAIL_PLATFORM_WINDOWS_REG_KEY_HPP
+#define WEBVIEW_DETAIL_PLATFORM_WINDOWS_REG_KEY_HPP
+
+#include "../../macros.hpp"
 
 #if defined(WEBVIEW_PLATFORM_WINDOWS)
 
 #include <string>
-#include <vector>
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -39,52 +40,22 @@
 
 #include <windows.h>
 
-#ifdef _MSC_VER
-#pragma comment(lib, "advapi32.lib")
-#endif
-
 namespace webview::detail
 {
   class reg_key
   {
 public:
-    explicit reg_key(const HKEY root_key, const wchar_t* sub_key, const DWORD options, const REGSAM sam_desired)
-    {
-      HKEY handle;
-      const auto status = RegOpenKeyExW(root_key, sub_key, options, sam_desired, &handle);
-
-      if (status == ERROR_SUCCESS)
-        m_handle = handle;
-    }
-
-    explicit reg_key(const HKEY root_key, const std::wstring& sub_key, const DWORD options, const REGSAM sam_desired)
-        : reg_key(root_key, sub_key.c_str(), options, sam_desired)
-    {
-    }
-
-    virtual ~reg_key()
-    {
-      if (m_handle)
-      {
-        RegCloseKey(m_handle);
-        m_handle = nullptr;
-      }
-    }
+    explicit reg_key(HKEY root_key, const wchar_t* sub_key, DWORD options, REGSAM sam_desired);
+    explicit reg_key(HKEY root_key, const std::wstring& sub_key, DWORD options, REGSAM sam_desired);
+    virtual ~reg_key();
 
     reg_key(const reg_key& other) = delete;
     reg_key& operator=(const reg_key& other) = delete;
     reg_key(reg_key&& other) = delete;
     reg_key& operator=(reg_key&& other) = delete;
 
-    bool is_open() const
-    {
-      return !!m_handle;
-    }
-
-    bool get_handle() const
-    {
-      return m_handle;
-    }
+    bool is_open() const;
+    bool get_handle() const;
 
     template<typename Container> void query_bytes(const wchar_t* name, Container& result) const
     {
@@ -106,38 +77,12 @@ public:
         result.resize(0);
     }
 
-    std::wstring query_string(const wchar_t* name) const
-    {
-      std::wstring result;
-      query_bytes(name, result);
-
-      // Remove trailing null-characters.
-      for (std::size_t length = result.size(); length > 0; --length)
-      {
-        if (result[length - 1] != 0)
-        {
-          result.resize(length);
-          break;
-        }
-      }
-
-      return result;
-    }
-
-    unsigned int query_uint(const wchar_t* name, const unsigned int default_value) const
-    {
-      std::vector<char> data;
-      query_bytes(name, data);
-      if (data.size() < sizeof(DWORD))
-        return default_value;
-
-      return static_cast<unsigned int>(*reinterpret_cast<DWORD*>(data.data()));
-    }
+    std::wstring query_string(const wchar_t* name) const;
+    unsigned int query_uint(const wchar_t* name, const unsigned int default_value) const;
 
 private:
     HKEY m_handle = nullptr;
   };
-
 } // namespace webview::detail
 
 #endif // defined(WEBVIEW_PLATFORM_WINDOWS)
