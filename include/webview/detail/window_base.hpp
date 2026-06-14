@@ -117,6 +117,8 @@ protected:
 
     void on_window_destroyed() const;
 
+    virtual webview::window* downcast_this() = 0;
+
     bool m_is_initialized;
     bool m_debug;
     std::string m_initial_title;

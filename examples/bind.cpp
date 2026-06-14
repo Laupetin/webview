@@ -69,7 +69,7 @@ int main()
 
   // A binding that counts up or down and immediately returns the new value.
   c.add_command_sync("count",
-                     [&](webview::detail::window_base& calling_window, std::string message_json_str) -> std::string
+                     [&](webview::window& calling_window, std::string message_json_str) -> std::string
                      {
                        // Imagine that req is properly parsed or use your own JSON parser.
                        const auto direction = std::stol(message_json_str.substr(1, message_json_str.size() - 1));
@@ -78,7 +78,7 @@ int main()
 
   // A binding that creates a new thread and returns the result at a later time.
   c.add_command_async("compute",
-                      [&](std::string promise_id, webview::detail::window_base& calling_window, std::string message_json_str)
+                      [&](std::string promise_id, webview::window& calling_window, std::string message_json_str)
                       {
                         // Create a thread and forget about it for the sake of simplicity.
                         std::thread(

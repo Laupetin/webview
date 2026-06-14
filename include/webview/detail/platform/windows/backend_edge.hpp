@@ -182,6 +182,8 @@ namespace webview
 
       void run_event_loop_while(const std::function<bool()>& fn) override;
 
+      webview::window* downcast_this() override;
+
   private:
       noresult window_init();
       noresult window_settings();
@@ -223,8 +225,6 @@ namespace webview
       bool m_is_window_shown{};
     };
   } // namespace detail
-
-  using window = detail::win32_edge_engine;
 } // namespace webview
 
 #endif // defined(WEBVIEW_PLATFORM_WINDOWS) && defined(WEBVIEW_EDGE)

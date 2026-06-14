@@ -453,6 +453,11 @@ namespace webview::detail
     }
   }
 
+  WEBVIEW_IMPL webview::window* win32_edge_engine::downcast_this()
+  {
+    return this;
+  }
+
   WEBVIEW_IMPL noresult win32_edge_engine::window_init()
   {
     if (!is_webview2_available())

@@ -164,6 +164,11 @@ namespace webview::detail
     return {};
   }
 
+  WEBVIEW_IMPL webview::window* gtk_webkit_engine::downcast_this()
+  {
+    return this;
+  }
+
   WEBVIEW_IMPL char* gtk_webkit_engine::get_string_from_js_result(JSCValue* r)
   {
     return jsc_value_to_string(r);

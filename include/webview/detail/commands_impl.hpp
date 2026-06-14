@@ -31,7 +31,7 @@ namespace webview
       return false;
     }
 
-    WEBVIEW_IMPL void command_handler_wrapper_void::call_handler(std::string promise_id, window_base& calling_window, std::string message_json_str)
+    WEBVIEW_IMPL void command_handler_wrapper_void::call_handler(std::string promise_id, window& calling_window, std::string message_json_str)
     {
       m_cb(calling_window, std::move(message_json_str));
     }
@@ -47,7 +47,7 @@ namespace webview
       return true;
     }
 
-    WEBVIEW_IMPL void command_handler_wrapper_sync::call_handler(std::string promise_id, window_base& calling_window, std::string message_json_str)
+    WEBVIEW_IMPL void command_handler_wrapper_sync::call_handler(std::string promise_id, window& calling_window, std::string message_json_str)
     {
       const auto result = m_cb(calling_window, std::move(message_json_str));
       calling_window.promise_resolve(promise_id, result);
@@ -64,7 +64,7 @@ namespace webview
       return true;
     }
 
-    WEBVIEW_IMPL void command_handler_wrapper_async::call_handler(std::string promise_id, window_base& calling_window, std::string message_json_str)
+    WEBVIEW_IMPL void command_handler_wrapper_async::call_handler(std::string promise_id, window& calling_window, std::string message_json_str)
     {
       m_cb(std::move(promise_id), calling_window, std::move(message_json_str));
     }

@@ -95,6 +95,8 @@ namespace webview
 
       noresult on_window_opened_impl() override;
 
+      webview::window* downcast_this() override;
+
   private:
       static char* get_string_from_js_result(JSCValue* r);
 
@@ -110,8 +112,6 @@ namespace webview
       bool m_is_window_shown{};
     };
   } // namespace detail
-
-  using window = detail::gtk_webkit_engine;
 } // namespace webview
 
 #endif // defined(WEBVIEW_PLATFORM_LINUX) && defined(WEBVIEW_GTK)

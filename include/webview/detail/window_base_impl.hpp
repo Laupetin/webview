@@ -282,7 +282,7 @@ namespace webview::detail
     dispatch(
         [=, this]
         {
-          found_command->call_handler(id, *this, args);
+          found_command->call_handler(id, *downcast_this(), args);
         });
   }
 
