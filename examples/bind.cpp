@@ -65,7 +65,7 @@ int main()
   w->set_title("Bind Example");
   w->set_window_size(480, 320);
 
-  webview::commands c;
+  webview::commands_builder c;
 
   // A binding that counts up or down and immediately returns the new value.
   c.add_command_sync("count",
@@ -93,7 +93,9 @@ int main()
                             .detach();
                       });
 
-  w->set_commands(c);
+  auto commands = c.build();
+
+  w->set_commands(commands);
   auto result = w->set_html(html);
   if (!result.has_value())
   {

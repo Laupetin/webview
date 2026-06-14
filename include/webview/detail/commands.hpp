@@ -98,17 +98,16 @@ private:
     friend class detail::window_base;
   };
 
-  class commands
+  class commands_builder
   {
 public:
-    commands() = default;
+    commands_builder() = default;
 
-    commands& add_command_void(std::string command_name, detail::command_handler_wrapper_void::cb_t handler);
-    commands& add_command_sync(std::string command_name, detail::command_handler_wrapper_sync::cb_t handler);
-    commands& add_command_async(std::string command_name, detail::command_handler_wrapper_async::cb_t handler);
+    commands_builder& add_command_void(std::string command_name, detail::command_handler_wrapper_void::cb_t handler);
+    commands_builder& add_command_sync(std::string command_name, detail::command_handler_wrapper_sync::cb_t handler);
+    commands_builder& add_command_async(std::string command_name, detail::command_handler_wrapper_async::cb_t handler);
 
     std::shared_ptr<command_collection> build();
-    operator std::shared_ptr<command_collection>();
 
 protected:
     std::vector<std::unique_ptr<detail::command_handler_wrapper>> m_commands;

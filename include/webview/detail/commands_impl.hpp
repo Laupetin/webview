@@ -89,34 +89,29 @@ namespace webview
     return nullptr;
   }
 
-  WEBVIEW_IMPL commands& commands::add_command_void(std::string command_name, detail::command_handler_wrapper_void::cb_t handler)
+  WEBVIEW_IMPL commands_builder& commands_builder::add_command_void(std::string command_name, detail::command_handler_wrapper_void::cb_t handler)
   {
     m_commands.emplace_back(std::make_unique<detail::command_handler_wrapper_void>(std::move(command_name), std::move(handler)));
     return *this;
   }
 
-  WEBVIEW_IMPL commands& commands::add_command_sync(std::string command_name, detail::command_handler_wrapper_sync::cb_t handler)
+  WEBVIEW_IMPL commands_builder& commands_builder::add_command_sync(std::string command_name, detail::command_handler_wrapper_sync::cb_t handler)
   {
     m_commands.emplace_back(std::make_unique<detail::command_handler_wrapper_sync>(std::move(command_name), std::move(handler)));
     return *this;
   }
 
-  WEBVIEW_IMPL commands& commands::add_command_async(std::string command_name, detail::command_handler_wrapper_async::cb_t handler)
+  WEBVIEW_IMPL commands_builder& commands_builder::add_command_async(std::string command_name, detail::command_handler_wrapper_async::cb_t handler)
   {
     m_commands.emplace_back(std::make_unique<detail::command_handler_wrapper_async>(std::move(command_name), std::move(handler)));
     return *this;
   }
 
-  WEBVIEW_IMPL std::shared_ptr<command_collection> commands::build()
+  WEBVIEW_IMPL std::shared_ptr<command_collection> commands_builder::build()
   {
     auto result = std::make_shared<command_collection>(std::move(m_commands));
     m_commands = std::vector<std::unique_ptr<detail::command_handler_wrapper>>();
     return result;
-  }
-
-  WEBVIEW_IMPL commands::operator std::shared_ptr<command_collection>()
-  {
-    return build();
   }
 } // namespace webview
 
