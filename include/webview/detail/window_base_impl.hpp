@@ -357,9 +357,9 @@ namespace webview::detail
     return {};
   }
 
-  WEBVIEW_IMPL noresult window_base::call_plugin_setup_window(webview::window& window)
+  WEBVIEW_IMPL noresult window_base::call_plugin_setup_window(webview::window& window, const plugin_window_context& context) const
   {
-    return m_app->on_plugin_setup_window(window);
+    return m_app->on_plugin_setup_window(window, context);
   }
 
   WEBVIEW_IMPL void window_base::on_window_destroyed() const

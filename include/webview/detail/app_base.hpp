@@ -43,7 +43,7 @@ namespace webview
       virtual void terminate();
 
   protected:
-      noresult on_plugin_setup_window(window& window);
+      noresult on_plugin_setup_window(window& window, const plugin_window_context& context) const;
       void on_window_closed(const window_base* window);
 
       virtual noresult run_loop() = 0;

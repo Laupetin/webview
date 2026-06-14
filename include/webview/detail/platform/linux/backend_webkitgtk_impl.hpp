@@ -51,30 +51,6 @@ namespace webview::detail
     deplete_run_loop_event_queue();
   }
 
-  WEBVIEW_IMPL result<void*> gtk_webkit_engine::window()
-  {
-    if (m_window)
-      return m_window;
-
-    return std::unexpected(error_info{webview_error::INVALID_STATE});
-  }
-
-  WEBVIEW_IMPL result<void*> gtk_webkit_engine::widget()
-  {
-    if (m_webview)
-      return m_webview;
-
-    return std::unexpected(error_info{webview_error::INVALID_STATE});
-  }
-
-  WEBVIEW_IMPL result<void*> gtk_webkit_engine::browser_controller()
-  {
-    if (m_webview)
-      return m_webview;
-
-    return std::unexpected(error_info{webview_error::INVALID_STATE});
-  }
-
   WEBVIEW_IMPL void gtk_webkit_engine::set_window_min(const unsigned width, const unsigned height)
   {
     gtk_widget_set_size_request(m_window, width, height);
@@ -229,7 +205,7 @@ namespace webview::detail
     if (!res_expect.has_value())
       return res_expect;
 
-    return call_plugin_setup_window(*this);
+    return call_plugin_setup_window(*this, plugin_window_context(m_window, m_webview, m_webview));
   }
 
   WEBVIEW_IMPL void gtk_webkit_engine::window_show()

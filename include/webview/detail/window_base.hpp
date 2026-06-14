@@ -39,105 +39,101 @@
 namespace webview
 {
   class command_collection;
-}
+  class plugin_window_context;
 
-namespace webview::detail
-{
-  class app_base;
-
-  class initial_navigation
+  namespace detail
   {
-public:
-    initial_navigation(bool is_html, std::string value);
+    class app_base;
 
-    bool m_is_html;
-    std::string m_value;
-  };
+    class initial_navigation
+    {
+  public:
+      initial_navigation(bool is_html, std::string value);
 
-  class window_base
-  {
-public:
-    window_base();
-    virtual ~window_base() = default;
+      bool m_is_html;
+      std::string m_value;
+    };
 
-    noresult set_html(const std::string& html);
-    noresult navigate(const std::string& url);
-    void set_title(const std::string& title);
+    class window_base
+    {
+  public:
+      window_base();
+      virtual ~window_base() = default;
 
-    virtual void set_window_min(unsigned width, unsigned height) = 0;
-    virtual void set_window_max(unsigned width, unsigned height) = 0;
-    virtual void set_window_size_fixed(bool value) = 0;
+      noresult set_html(const std::string& html);
+      noresult navigate(const std::string& url);
+      void set_title(const std::string& title);
 
-    void set_window_size(unsigned width, unsigned height);
+      virtual void set_window_min(unsigned width, unsigned height) = 0;
+      virtual void set_window_max(unsigned width, unsigned height) = 0;
+      virtual void set_window_size_fixed(bool value) = 0;
 
-    void set_debug(bool debug);
-    void set_commands(std::shared_ptr<command_collection> commands);
+      void set_window_size(unsigned width, unsigned height);
 
-    void promise_resolve(const std::string& promise_id, const std::string& response_json_str);
-    void promise_reject(const std::string& promise_id, const std::string& response_json_str);
-    void notify(const std::string& event_key, const std::string& message_json_str);
+      void set_debug(bool debug);
+      void set_commands(std::shared_ptr<command_collection> commands);
 
-    virtual result<void*> window() = 0;
-    virtual result<void*> widget() = 0;
-    virtual result<void*> browser_controller() = 0;
+      void promise_resolve(const std::string& promise_id, const std::string& response_json_str);
+      void promise_reject(const std::string& promise_id, const std::string& response_json_str);
+      void notify(const std::string& event_key, const std::string& message_json_str);
 
-    void dispatch(std::function<void()> f);
+      void dispatch(std::function<void()> f);
 
-    virtual noresult eval(const std::string& js) = 0;
+      virtual noresult eval(const std::string& js) = 0;
 
-protected:
-    virtual noresult set_html_impl(const std::string& html) = 0;
-    virtual noresult navigate_impl(const std::string& url) = 0;
-    virtual void dispatch_impl(std::function<void()> f) = 0;
-    virtual void set_window_size_impl(int width, int height) = 0;
-    virtual void set_title_impl(const std::string& title) = 0;
+  protected:
+      virtual noresult set_html_impl(const std::string& html) = 0;
+      virtual noresult navigate_impl(const std::string& url) = 0;
+      virtual void dispatch_impl(std::function<void()> f) = 0;
+      virtual void set_window_size_impl(int width, int height) = 0;
+      virtual void set_title_impl(const std::string& title) = 0;
 
-    virtual noresult add_page_init_script(const std::string& js) = 0;
+      virtual noresult add_page_init_script(const std::string& js) = 0;
 
-    static std::string create_webview_init_script(const std::string& post_fn);
+      static std::string create_webview_init_script(const std::string& post_fn);
 
-    std::string create_bind_script() const;
+      std::string create_bind_script() const;
 
-    virtual void on_message(const std::string& msg);
+      virtual void on_message(const std::string& msg);
 
-    void promise_resolve_with_status(const std::string& promise_id, const std::string& response_json_str, int status);
+      void promise_resolve_with_status(const std::string& promise_id, const std::string& response_json_str, int status);
 
-    void dispatch_eval(std::string js);
+      void dispatch_eval(std::string js);
 
-    // Runs the event loop until the currently queued events have been processed.
-    void deplete_run_loop_event_queue();
+      // Runs the event loop until the currently queued events have been processed.
+      void deplete_run_loop_event_queue();
 
-    // Runs the event loop while the passed-in function returns true.
-    virtual void run_event_loop_while(const std::function<bool()>& fn) = 0;
+      // Runs the event loop while the passed-in function returns true.
+      virtual void run_event_loop_while(const std::function<bool()>& fn) = 0;
 
-    void dispatch_size_default();
+      void dispatch_size_default();
 
-    noresult on_window_opened(app_base* app);
-    virtual noresult on_window_opened_impl() = 0;
+      noresult on_window_opened(app_base* app);
+      virtual noresult on_window_opened_impl() = 0;
 
-    noresult call_plugin_setup_window(webview::window& window);
-    void on_window_destroyed() const;
+      noresult call_plugin_setup_window(webview::window& window, const plugin_window_context& context) const;
+      void on_window_destroyed() const;
 
-    virtual webview::window* downcast_this() = 0;
+      virtual webview::window* downcast_this() = 0;
 
-    bool m_is_initialized;
-    bool m_debug;
-    std::string m_initial_title;
+      bool m_is_initialized;
+      bool m_debug;
+      std::string m_initial_title;
 
-private:
-    std::shared_ptr<command_collection> m_commands;
-    app_base* m_app;
+  private:
+      std::shared_ptr<command_collection> m_commands;
+      app_base* m_app;
 
-    unsigned m_initial_width;
-    unsigned m_initial_height;
-    std::optional<initial_navigation> m_initial_navigation;
+      unsigned m_initial_width;
+      unsigned m_initial_height;
+      std::optional<initial_navigation> m_initial_navigation;
 
-    static constexpr int DEFAULT_INITIAL_WIDTH = 640;
-    static constexpr int DEFAULT_INITIAL_HEIGHT = 480;
+      static constexpr int DEFAULT_INITIAL_WIDTH = 640;
+      static constexpr int DEFAULT_INITIAL_HEIGHT = 480;
 
-    friend class app_base;
-  };
-
-} // namespace webview::detail
+      friend class app_base;
+    };
+  } // namespace detail
+} // namespace webview
 
 #endif // WEBVIEW_DETAIL_ENGINE_BASE_HPP

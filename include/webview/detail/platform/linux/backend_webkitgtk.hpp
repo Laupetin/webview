@@ -73,10 +73,6 @@ namespace webview
 
       virtual ~gtk_webkit_engine();
 
-      result<void*> window() override;
-      result<void*> widget() override;
-      result<void*> browser_controller() override;
-
       void set_window_min(const unsigned width, const unsigned height) override;
       void set_window_max(const unsigned width, const unsigned height) override;
       void set_window_size_fixed(const bool value) override;

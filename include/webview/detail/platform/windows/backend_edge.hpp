@@ -154,10 +154,6 @@ namespace webview
       win32_edge_engine(win32_edge_engine&& other) = delete;
       win32_edge_engine& operator=(win32_edge_engine&& other) = delete;
 
-      result<void*> window() override;
-      result<void*> widget() override;
-      result<void*> browser_controller() override;
-
       void set_window_min(unsigned width, unsigned height) override;
       void set_window_max(unsigned width, unsigned height) override;
 

@@ -74,13 +74,13 @@ namespace webview::detail
     m_stop_run_loop = true;
   }
 
-  WEBVIEW_IMPL noresult app_base::on_plugin_setup_window(window& window)
+  WEBVIEW_IMPL noresult app_base::on_plugin_setup_window(window& window, const plugin_window_context& context) const
   {
     for (const auto& plugin : m_plugins)
     {
-      auto result = plugin->on_setup_window(window);
+      auto result = plugin->on_setup_window(window, context);
       if (!result.has_value())
-        return std::move(result);
+        return std::unexpected(error_info{webview_error::UNSPECIFIED, std::move(result).error()});
     }
 
     return {};

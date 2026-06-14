@@ -299,30 +299,6 @@ namespace webview::detail
     }
   }
 
-  WEBVIEW_IMPL result<void*> win32_edge_engine::window()
-  {
-    if (m_window)
-      return m_window;
-
-    return std::unexpected(error_info{webview_error::INVALID_STATE});
-  }
-
-  WEBVIEW_IMPL result<void*> win32_edge_engine::widget()
-  {
-    if (m_widget)
-      return m_widget;
-
-    return std::unexpected(error_info{webview_error::INVALID_STATE});
-  }
-
-  WEBVIEW_IMPL result<void*> win32_edge_engine::browser_controller()
-  {
-    if (m_controller)
-      return m_controller;
-
-    return std::unexpected(error_info{webview_error::INVALID_STATE});
-  }
-
   WEBVIEW_IMPL void win32_edge_engine::set_window_min(const unsigned width, const unsigned height)
   {
     m_min_size.x = width;
@@ -788,7 +764,7 @@ namespace webview::detail
 
     resize_webview();
 
-    res_expect = call_plugin_setup_window(*this);
+    res_expect = call_plugin_setup_window(*this, plugin_window_context(m_window, m_widget, m_controller));
     if (!res_expect.has_value())
       return std::move(res_expect);
 
