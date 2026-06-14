@@ -12,6 +12,7 @@ std::shared_ptr<webview::window> create_sample_window(const int index)
   auto w = std::make_shared<webview::window>();
   w->set_title(std::format("Multi window {}", index));
   w->set_window_size(480, 320);
+  w->set_debug(true);
   auto result = w->set_html(std::format("This is window {}", index));
   if (!result.has_value())
   {

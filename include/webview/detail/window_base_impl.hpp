@@ -392,21 +392,21 @@ namespace webview::detail
     if (!result.has_value())
       return std::move(result);
 
-    if (m_is_initialized && m_initial_navigation)
-    {
-      if (m_initial_navigation->m_is_html)
-      {
-        result = set_html_impl(m_initial_navigation->m_value);
-        if (!result.has_value())
-          return std::move(result);
-      }
-      else
-      {
-        result = navigate_impl(m_initial_navigation->m_value);
-        if (!result.has_value())
-          return std::move(result);
-      }
-    }
+    dispatch(
+        [this]()
+        {
+          if (m_is_initialized && m_initial_navigation)
+          {
+            if (m_initial_navigation->m_is_html)
+            {
+              (void)set_html_impl(m_initial_navigation->m_value);
+            }
+            else
+            {
+              (void)navigate_impl(m_initial_navigation->m_value);
+            }
+          }
+        });
 
     return {};
   }
