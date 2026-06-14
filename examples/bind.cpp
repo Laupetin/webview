@@ -63,6 +63,8 @@ int main()
   auto w = std::make_unique<webview::window>();
   w->set_debug(true);
   w->set_title("Bind Example");
+  w->set_window_min(200, 200);
+  w->set_window_max(600, 600);
   w->set_window_size(480, 320);
 
   webview::commands_builder c;

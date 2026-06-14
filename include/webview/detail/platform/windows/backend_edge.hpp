@@ -154,17 +154,15 @@ namespace webview
       win32_edge_engine(win32_edge_engine&& other) = delete;
       win32_edge_engine& operator=(win32_edge_engine&& other) = delete;
 
-      void set_window_min(unsigned width, unsigned height) override;
-      void set_window_max(unsigned width, unsigned height) override;
-
-      void set_window_size_fixed(const bool value) override;
-
       noresult eval(const std::string& js) override;
 
   protected:
       void dispatch_impl(dispatch_fn_t f) override;
 
-      void set_window_size_impl(const int width, const int height) override;
+      void set_window_size_impl(unsigned width, unsigned height) override;
+      void set_window_min_impl(unsigned width, unsigned height) override;
+      void set_window_max_impl(unsigned width, unsigned height) override;
+      void set_window_size_fixed_impl(bool value) override;
 
       noresult set_html_impl(const std::string& html) override;
 
@@ -178,7 +176,7 @@ namespace webview
 
       void run_event_loop_while(const std::function<bool()>& fn) override;
 
-      webview::window* downcast_this() override;
+      window* downcast_this() override;
 
   private:
       noresult window_init();

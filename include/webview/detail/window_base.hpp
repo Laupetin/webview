@@ -56,6 +56,15 @@ namespace webview
       std::string m_value;
     };
 
+    class initial_size
+    {
+  public:
+      initial_size(unsigned width, unsigned height);
+
+      unsigned m_width;
+      unsigned m_height;
+    };
+
     class window_base
     {
   public:
@@ -68,11 +77,10 @@ namespace webview
       noresult navigate(const std::string& url);
       void set_title(const std::string& title);
 
-      virtual void set_window_min(unsigned width, unsigned height) = 0;
-      virtual void set_window_max(unsigned width, unsigned height) = 0;
-      virtual void set_window_size_fixed(bool value) = 0;
-
       void set_window_size(unsigned width, unsigned height);
+      void set_window_min(unsigned width, unsigned height);
+      void set_window_max(unsigned width, unsigned height);
+      void set_window_size_fixed(bool value);
 
       void set_debug(bool debug);
       void set_commands(std::shared_ptr<command_collection> commands);
@@ -89,8 +97,12 @@ namespace webview
       virtual noresult set_html_impl(const std::string& html) = 0;
       virtual noresult navigate_impl(const std::string& url) = 0;
       virtual void dispatch_impl(std::function<void()> f) = 0;
-      virtual void set_window_size_impl(int width, int height) = 0;
       virtual void set_title_impl(const std::string& title) = 0;
+
+      virtual void set_window_size_impl(unsigned width, unsigned height) = 0;
+      virtual void set_window_min_impl(unsigned width, unsigned height) = 0;
+      virtual void set_window_max_impl(unsigned width, unsigned height) = 0;
+      virtual void set_window_size_fixed_impl(bool value) = 0;
 
       virtual noresult add_page_init_script(const std::string& js) = 0;
 
@@ -129,8 +141,10 @@ namespace webview
       app_base* m_app;
       std::vector<std::shared_ptr<plugin>> m_plugins;
 
-      unsigned m_initial_width;
-      unsigned m_initial_height;
+      initial_size m_initial_size;
+      std::optional<initial_size> m_initial_min;
+      std::optional<initial_size> m_initial_max;
+      std::optional<bool> m_initial_fixed;
       std::optional<initial_navigation> m_initial_navigation;
 
       static constexpr int DEFAULT_INITIAL_WIDTH = 640;

@@ -73,16 +73,16 @@ namespace webview
 
       virtual ~gtk_webkit_engine();
 
-      void set_window_min(const unsigned width, const unsigned height) override;
-      void set_window_max(const unsigned width, const unsigned height) override;
-      void set_window_size_fixed(const bool value) override;
-
       noresult eval(const std::string& js) override;
 
   protected:
       void dispatch_impl(std::function<void()> f) override;
 
-      void set_window_size_impl(int width, int height) override;
+      void set_window_size_impl(unsigned width, unsigned height) override;
+      void set_window_min_impl(const unsigned width, const unsigned height) override;
+      void set_window_max_impl(const unsigned width, const unsigned height) override;
+      void set_window_size_fixed_impl(const bool value) override;
+
       noresult navigate_impl(const std::string& url) override;
       noresult set_html_impl(const std::string& html) override;
       void set_title_impl(const std::string& title) override;

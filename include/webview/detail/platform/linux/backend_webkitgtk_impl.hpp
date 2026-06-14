@@ -19,7 +19,6 @@
 //
 
 #include "backend_webkitgtk.hpp"
-#include "gtk_compat.hpp"
 #include "webkitgtk_compat.hpp"
 
 #include <fcntl.h>
@@ -51,25 +50,6 @@ namespace webview::detail
     deplete_run_loop_event_queue();
   }
 
-  WEBVIEW_IMPL void gtk_webkit_engine::set_window_min(const unsigned width, const unsigned height)
-  {
-    gtk_widget_set_size_request(m_window, width, height);
-
-    window_show();
-  }
-
-  WEBVIEW_IMPL void gtk_webkit_engine::set_window_max(const unsigned width, const unsigned height)
-  {
-    gtk_compat::window_set_max_size(GTK_WINDOW(m_window), width, height);
-
-    window_show();
-  }
-
-  WEBVIEW_IMPL void gtk_webkit_engine::set_window_size_fixed(const bool value)
-  {
-    gtk_window_set_resizable(GTK_WINDOW(m_window), !value);
-  }
-
   WEBVIEW_IMPL noresult gtk_webkit_engine::eval(const std::string& js)
   {
     // URI is null before content has begun loading.
@@ -90,10 +70,26 @@ namespace webview::detail
                     [](void *fn) { delete static_cast<dispatch_fn_t *>(fn); });
   }
 
-  WEBVIEW_IMPL void gtk_webkit_engine::set_window_size_impl(int width, int height)
+  WEBVIEW_IMPL void gtk_webkit_engine::set_window_size_impl(unsigned width, unsigned height)
   {
-    gtk_compat::window_set_size(GTK_WINDOW(m_window), width, height);
-    window_show();
+    // GTK 4 can set a default window size, but unlike GTK 3 it can't resize
+    // the window after it has been set up.
+    gtk_window_set_default_size(GTK_WINDOW(m_window), width, height);
+  }
+
+  WEBVIEW_IMPL void gtk_webkit_engine::set_window_min_impl(const unsigned width, const unsigned height)
+  {
+    gtk_widget_set_size_request(m_window, width, height);
+  }
+
+  WEBVIEW_IMPL void gtk_webkit_engine::set_window_max_impl(const unsigned width, const unsigned height)
+  {
+    // X11-specific features are available in GTK 3 but not GTK 4
+  }
+
+  WEBVIEW_IMPL void gtk_webkit_engine::set_window_size_fixed_impl(const bool value)
+  {
+    gtk_window_set_resizable(GTK_WINDOW(m_window), !value);
   }
 
   WEBVIEW_IMPL noresult gtk_webkit_engine::navigate_impl(const std::string& url)
@@ -137,6 +133,8 @@ namespace webview::detail
 
     dispatch_size_default();
 
+    window_show();
+
     return {};
   }
 
@@ -152,10 +150,10 @@ namespace webview::detail
 
   WEBVIEW_IMPL noresult gtk_webkit_engine::window_init()
   {
-    if (!gtk_compat::init_check())
+    if (!gtk_init_check())
       return std::unexpected(error_info(webview_error::UNSPECIFIED, "GTK init failed"));
 
-    m_window = gtk_compat::window_new();
+    m_window = gtk_window_new();
 
     auto on_window_destroy = +[](GtkWidget*, gpointer arg)
     {
@@ -212,11 +210,11 @@ namespace webview::detail
   {
     if (!m_is_window_shown)
     {
-      gtk_compat::window_set_child(GTK_WINDOW(m_window), GTK_WIDGET(m_webview));
-      gtk_compat::widget_set_visible(GTK_WIDGET(m_webview), true);
+      gtk_window_set_child(GTK_WINDOW(m_window), GTK_WIDGET(m_webview));
+      gtk_widget_set_visible(GTK_WIDGET(m_webview), TRUE);
 
       gtk_widget_grab_focus(GTK_WIDGET(m_webview));
-      gtk_compat::widget_set_visible(GTK_WIDGET(m_window), true);
+      gtk_widget_set_visible(GTK_WIDGET(m_window), TRUE);
 
       m_is_window_shown = true;
     }

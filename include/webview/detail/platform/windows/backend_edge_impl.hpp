@@ -299,33 +299,6 @@ namespace webview::detail
     }
   }
 
-  WEBVIEW_IMPL void win32_edge_engine::set_window_min(const unsigned width, const unsigned height)
-  {
-    m_min_size.x = width;
-    m_min_size.y = height;
-
-    window_show();
-  }
-
-  WEBVIEW_IMPL void win32_edge_engine::set_window_max(const unsigned width, const unsigned height)
-  {
-    m_max_size.x = width;
-    m_max_size.y = height;
-
-    window_show();
-  }
-
-  WEBVIEW_IMPL void win32_edge_engine::set_window_size_fixed(const bool value)
-  {
-    auto style = GetWindowLong(m_window, GWL_STYLE);
-    if (value)
-      style &= ~(WS_THICKFRAME | WS_MAXIMIZEBOX);
-    else
-      style |= (WS_THICKFRAME | WS_MAXIMIZEBOX);
-
-    SetWindowLong(m_window, GWL_STYLE, style);
-  }
-
   WEBVIEW_IMPL noresult win32_edge_engine::eval(const std::string& js)
   {
     // TODO: Skip if no content has begun loading yet. Can't check with
@@ -343,7 +316,7 @@ namespace webview::detail
     PostMessageW(m_message_window, WM_APP, 0, reinterpret_cast<LPARAM>(new dispatch_fn_t(std::move(f))));
   }
 
-  WEBVIEW_IMPL void win32_edge_engine::set_window_size_impl(const int width, const int height)
+  WEBVIEW_IMPL void win32_edge_engine::set_window_size_impl(const unsigned width, const unsigned height)
   {
     const auto dpi = get_window_dpi(m_window);
     m_dpi = dpi;
@@ -351,8 +324,29 @@ namespace webview::detail
     const auto scaled_size = scale_size(width, height, get_default_window_dpi(), dpi);
     const auto frame_size = make_window_frame_size(m_window, scaled_size.cx, scaled_size.cy, dpi);
     SetWindowPos(m_window, nullptr, 0, 0, frame_size.cx, frame_size.cy, SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOMOVE | SWP_FRAMECHANGED);
+  }
 
-    window_show();
+  WEBVIEW_IMPL void win32_edge_engine::set_window_min_impl(const unsigned width, const unsigned height)
+  {
+    m_min_size.x = width;
+    m_min_size.y = height;
+  }
+
+  WEBVIEW_IMPL void win32_edge_engine::set_window_max_impl(const unsigned width, const unsigned height)
+  {
+    m_max_size.x = width;
+    m_max_size.y = height;
+  }
+
+  WEBVIEW_IMPL void win32_edge_engine::set_window_size_fixed_impl(const bool value)
+  {
+    auto style = GetWindowLong(m_window, GWL_STYLE);
+    if (value)
+      style &= ~(WS_THICKFRAME | WS_MAXIMIZEBOX);
+    else
+      style |= (WS_THICKFRAME | WS_MAXIMIZEBOX);
+
+    SetWindowLong(m_window, GWL_STYLE, style);
   }
 
   WEBVIEW_IMPL noresult win32_edge_engine::set_html_impl(const std::string& html)
@@ -416,6 +410,9 @@ namespace webview::detail
     m_is_initialized = true;
 
     dispatch_size_default();
+
+    window_show();
+
     return {};
   }
 
@@ -769,6 +766,7 @@ namespace webview::detail
       return std::move(res_expect);
 
     m_controller->put_IsVisible(TRUE);
+
     ShowWindow(m_widget, SW_SHOW);
     UpdateWindow(m_widget);
     focus_webview();

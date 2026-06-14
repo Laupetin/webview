@@ -45,12 +45,17 @@ namespace webview::detail
   {
   }
 
+  WEBVIEW_IMPL initial_size::initial_size(const unsigned width, const unsigned height)
+      : m_width(width),
+        m_height(height)
+  {
+  }
+
   WEBVIEW_IMPL window_base::window_base()
       : m_is_initialized(false),
         m_debug(false),
         m_app(nullptr),
-        m_initial_width(DEFAULT_INITIAL_WIDTH),
-        m_initial_height(DEFAULT_INITIAL_HEIGHT)
+        m_initial_size(DEFAULT_INITIAL_WIDTH, DEFAULT_INITIAL_HEIGHT)
   {
   }
 
@@ -100,9 +105,46 @@ namespace webview::detail
     {
       set_window_size_impl(width, height);
     }
+    else
+    {
+      m_initial_size = initial_size(width, height);
+    }
+  }
 
-    m_initial_width = width;
-    m_initial_height = height;
+  WEBVIEW_IMPL void window_base::set_window_min(const unsigned width, const unsigned height)
+  {
+    if (m_is_initialized)
+    {
+      set_window_min_impl(width, height);
+    }
+    else
+    {
+      m_initial_min = initial_size(width, height);
+    }
+  }
+
+  WEBVIEW_IMPL void window_base::set_window_max(const unsigned width, const unsigned height)
+  {
+    if (m_is_initialized)
+    {
+      set_window_max_impl(width, height);
+    }
+    else
+    {
+      m_initial_max = initial_size(width, height);
+    }
+  }
+
+  WEBVIEW_IMPL void window_base::set_window_size_fixed(const bool value)
+  {
+    if (m_is_initialized)
+    {
+      set_window_size_fixed_impl(value);
+    }
+    else
+    {
+      m_initial_fixed = value;
+    }
   }
 
   WEBVIEW_IMPL void window_base::set_debug(const bool debug)
@@ -332,7 +374,14 @@ namespace webview::detail
     dispatch(
         [this]
         {
-          set_window_size_impl(m_initial_width, m_initial_height);
+          set_window_size_impl(m_initial_size.m_width, m_initial_size.m_height);
+
+          if (m_initial_min)
+            set_window_min_impl(m_initial_min->m_width, m_initial_min->m_height);
+          if (m_initial_max)
+            set_window_max_impl(m_initial_max->m_width, m_initial_max->m_height);
+          if (m_initial_fixed)
+            set_window_size_fixed_impl(*m_initial_fixed);
         });
   }
 
