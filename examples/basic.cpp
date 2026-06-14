@@ -13,7 +13,7 @@ int WINAPI WinMain(HINSTANCE /*hInst*/, HINSTANCE /*hPrevInst*/, LPSTR /*lpCmdLi
 int main()
 {
 #endif
-  auto w = std::make_unique<webview::window>();
+  auto w = std::make_shared<webview::window>();
   w->set_title("Basic Example");
   w->set_window_size(480, 320);
   auto result = w->set_html("Thanks for using webview!");

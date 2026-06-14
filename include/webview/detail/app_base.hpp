@@ -9,7 +9,7 @@
 #include <memory>
 #include <mutex>
 
-namespace webview::detail
+namespace webview
 {
   enum class app_shutdown_behaviour : unsigned char
   {
@@ -17,38 +17,43 @@ namespace webview::detail
     on_all_windows_closed
   };
 
-  class window_base;
-
-  class app_base
+  namespace detail
   {
-public:
-    app_base() = default;
-    virtual ~app_base() = default;
-    app_base(const app_base& other) = delete;
-    app_base(app_base&& other) noexcept = delete;
-    app_base& operator=(const app_base& other) = delete;
-    app_base& operator=(app_base&& other) noexcept = delete;
+    class window_base;
 
-    void set_shutdown_behaviour(app_shutdown_behaviour behaviour);
+    class app_base
+    {
+  public:
+      app_base();
+      virtual ~app_base() = default;
+      app_base(const app_base& other) = delete;
+      app_base(app_base&& other) noexcept = delete;
+      app_base& operator=(const app_base& other) = delete;
+      app_base& operator=(app_base&& other) noexcept = delete;
 
-    noresult run(std::shared_ptr<window_base> window);
+      void set_shutdown_behaviour(app_shutdown_behaviour behaviour);
 
-    virtual void terminate();
+      noresult open_window(std::shared_ptr<window> window);
 
-protected:
-    void on_window_closed(const window_base* window);
+      noresult run(std::shared_ptr<window> window);
 
-    virtual noresult run_loop() = 0;
+      virtual void terminate();
 
-    bool m_stop_run_loop;
-    app_shutdown_behaviour m_shutdown_behaviour;
+  protected:
+      void on_window_closed(const window_base* window);
 
-    std::shared_ptr<window_base> m_main_window;
-    std::vector<std::shared_ptr<window_base>> m_windows;
-    std::mutex m_window_mutex;
+      virtual noresult run_loop() = 0;
 
-    friend class window_base;
-  };
-} // namespace webview::detail
+      bool m_stop_run_loop;
+      app_shutdown_behaviour m_shutdown_behaviour;
+
+      std::shared_ptr<window> m_main_window;
+      std::vector<std::shared_ptr<window>> m_windows;
+      std::mutex m_window_mutex;
+
+      friend class window_base;
+    };
+  } // namespace detail
+} // namespace webview
 
 #endif
