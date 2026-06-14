@@ -21,6 +21,11 @@ namespace webview::detail
     m_shutdown_behaviour = behaviour;
   }
 
+  WEBVIEW_IMPL void app_base::register_plugin(std::shared_ptr<plugin> plugin)
+  {
+    m_plugins.emplace_back(std::move(plugin));
+  }
+
   WEBVIEW_IMPL noresult app_base::open_window(std::shared_ptr<window> window)
   {
     webview::window* window_ptr = window.get();
@@ -67,6 +72,18 @@ namespace webview::detail
     m_windows.clear();
     m_main_window.reset();
     m_stop_run_loop = true;
+  }
+
+  WEBVIEW_IMPL noresult app_base::on_plugin_setup_window(window& window)
+  {
+    for (const auto& plugin : m_plugins)
+    {
+      auto result = plugin->on_setup_window(window);
+      if (!result.has_value())
+        return std::move(result);
+    }
+
+    return {};
   }
 
   WEBVIEW_IMPL void app_base::on_window_closed(const window_base* window)

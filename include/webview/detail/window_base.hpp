@@ -115,6 +115,7 @@ protected:
     noresult on_window_opened(app_base* app);
     virtual noresult on_window_opened_impl() = 0;
 
+    noresult call_plugin_setup_window(webview::window& window);
     void on_window_destroyed() const;
 
     virtual webview::window* downcast_this() = 0;

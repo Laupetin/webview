@@ -229,7 +229,7 @@ namespace webview::detail
     if (!res_expect.has_value())
       return res_expect;
 
-    return {};
+    return call_plugin_setup_window(*this);
   }
 
   WEBVIEW_IMPL void gtk_webkit_engine::window_show()

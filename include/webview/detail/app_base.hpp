@@ -3,11 +3,13 @@
 #ifndef WEBVIEW_DETAIL_APP_BASE_HPP
 #define WEBVIEW_DETAIL_APP_BASE_HPP
 
+#include "plugin.hpp"
 #include "types.hpp"
 #include "window_base.hpp"
 
 #include <memory>
 #include <mutex>
+#include <vector>
 
 namespace webview
 {
@@ -32,6 +34,7 @@ namespace webview
       app_base& operator=(app_base&& other) noexcept = delete;
 
       void set_shutdown_behaviour(app_shutdown_behaviour behaviour);
+      void register_plugin(std::shared_ptr<plugin> plugin);
 
       noresult open_window(std::shared_ptr<window> window);
 
@@ -40,6 +43,7 @@ namespace webview
       virtual void terminate();
 
   protected:
+      noresult on_plugin_setup_window(window& window);
       void on_window_closed(const window_base* window);
 
       virtual noresult run_loop() = 0;
@@ -50,6 +54,8 @@ namespace webview
       std::shared_ptr<window> m_main_window;
       std::vector<std::shared_ptr<window>> m_windows;
       std::mutex m_window_mutex;
+
+      std::vector<std::shared_ptr<plugin>> m_plugins;
 
       friend class window_base;
     };

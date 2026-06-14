@@ -788,6 +788,10 @@ namespace webview::detail
 
     resize_webview();
 
+    res_expect = call_plugin_setup_window(*this);
+    if (!res_expect.has_value())
+      return std::move(res_expect);
+
     m_controller->put_IsVisible(TRUE);
     ShowWindow(m_widget, SW_SHOW);
     UpdateWindow(m_widget);
