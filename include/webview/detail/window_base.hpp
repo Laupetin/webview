@@ -30,6 +30,7 @@
 
 #include "commands.hpp"
 #include "errors.hpp"
+#include "plugin.hpp"
 
 #include <format>
 #include <functional>
@@ -39,6 +40,7 @@
 namespace webview
 {
   class command_collection;
+  class plugin;
   class plugin_window_context;
 
   namespace detail
@@ -59,6 +61,8 @@ namespace webview
   public:
       window_base();
       virtual ~window_base() = default;
+
+      void register_plugin(std::shared_ptr<plugin> plugin);
 
       noresult set_html(const std::string& html);
       noresult navigate(const std::string& url);
@@ -111,10 +115,10 @@ namespace webview
       noresult on_window_opened(app_base* app);
       virtual noresult on_window_opened_impl() = 0;
 
-      noresult call_plugin_setup_window(webview::window& window, const plugin_window_context& context) const;
+      noresult call_plugin_setup_window(window& window, const plugin_window_context& context) const;
       void on_window_destroyed() const;
 
-      virtual webview::window* downcast_this() = 0;
+      virtual window* downcast_this() = 0;
 
       bool m_is_initialized;
       bool m_debug;
@@ -123,6 +127,7 @@ namespace webview
   private:
       std::shared_ptr<command_collection> m_commands;
       app_base* m_app;
+      std::vector<std::shared_ptr<plugin>> m_plugins;
 
       unsigned m_initial_width;
       unsigned m_initial_height;

@@ -54,6 +54,11 @@ namespace webview::detail
   {
   }
 
+  WEBVIEW_IMPL void window_base::register_plugin(std::shared_ptr<plugin> plugin)
+  {
+    m_plugins.emplace_back(std::move(plugin));
+  }
+
   WEBVIEW_IMPL noresult window_base::set_html(const std::string& html)
   {
     if (m_is_initialized)
@@ -357,8 +362,15 @@ namespace webview::detail
     return {};
   }
 
-  WEBVIEW_IMPL noresult window_base::call_plugin_setup_window(webview::window& window, const plugin_window_context& context) const
+  WEBVIEW_IMPL noresult window_base::call_plugin_setup_window(window& window, const plugin_window_context& context) const
   {
+    for (const auto& plugin : m_plugins)
+    {
+      auto result = plugin->on_setup_window(window, context);
+      if (!result.has_value())
+        return std::unexpected(error_info{webview_error::UNSPECIFIED, std::move(result).error()});
+    }
+
     return m_app->on_plugin_setup_window(window, context);
   }
 
