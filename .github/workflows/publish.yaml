@@ -1,0 +1,39 @@
+name: publish
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read
+
+jobs:
+  publish:
+    name: Publish packages
+    runs-on: ubuntu-latest
+    container: ubuntu:24.04
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Install node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Prepare pnpm
+        run: |
+          npm install --global corepack@latest
+          corepack enable pnpm
+
+      - name: Build pnpm
+        run: |
+          pnpm i
+          pnpm run build
+
+      - name: Publish pnpm
+        run: |
+          pnpm publish --provenance --access public --filter './packages/**'
