@@ -3,4 +3,5 @@
 export default defineConfig({
   platform: "node",
   exports: true,
+  dts: true,
 });
