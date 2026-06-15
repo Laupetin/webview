@@ -2,7 +2,9 @@
   "name": "@laupetin/vite-plugin-cpp-header",
   "version": "1.0.0",
   "type": "module",
-  "private": "true",
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
     "@tsconfig/node24": "catalog:",
     "@types/node": "catalog:",
