@@ -86,6 +86,18 @@ namespace webview::detail
     return {};
   }
 
+  WEBVIEW_IMPL noresult app_base::on_plugin_setup_environment_options(window& window, void* environment_options) const
+  {
+    for (const auto& plugin : m_plugins)
+    {
+      auto result = plugin->on_setup_environment_options(window, environment_options);
+      if (!result.has_value())
+        return std::unexpected(error_info{webview_error::UNSPECIFIED, std::move(result).error()});
+    }
+
+    return {};
+  }
+
   WEBVIEW_IMPL void app_base::on_window_closed(const window_base* window)
   {
     std::lock_guard lock(m_window_mutex);

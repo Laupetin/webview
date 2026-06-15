@@ -423,6 +423,18 @@ namespace webview::detail
     return m_app->on_plugin_setup_window(window, context);
   }
 
+  WEBVIEW_IMPL noresult window_base::call_plugin_setup_environment_options(window& window, void* environment_options) const
+  {
+    for (const auto& plugin : m_plugins)
+    {
+      auto result = plugin->on_setup_environment_options(window, environment_options);
+      if (!result.has_value())
+        return std::unexpected(error_info{webview_error::UNSPECIFIED, std::move(result).error()});
+    }
+
+    return m_app->on_plugin_setup_environment_options(window, environment_options);
+  }
+
   WEBVIEW_IMPL void window_base::on_window_destroyed() const
   {
     if (m_app)
