@@ -109,7 +109,7 @@ workspace "Webview"
         }
 
 
-    local exampleFiles = os.matchfiles("examples/*")
+    local exampleFiles = os.matchfiles("examples/**.cpp")
     for i = 1, #exampleFiles do
         local exampleFile = exampleFiles[i]
 
