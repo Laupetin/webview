@@ -1,3 +1,2 @@
-# All .sh files should be lf line endings
-*.sh text eol=lf
-
+# All text files should use lf
+* text=auto eol=lf

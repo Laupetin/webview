@@ -1,0 +1,21 @@
+{
+  "name": "example-spa",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "vue": "catalog:"
+  },
+  "devDependencies": {
+    "@laupetin/vite-plugin-cpp-header": "workspace:",
+    "@vitejs/plugin-vue": "catalog:",
+    "prettier": "catalog:",
+    "vite": "catalog:"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "format": "prettier --write .",
+    "lint": "prettier --check ."
+  }
+}

@@ -12,7 +12,7 @@ jobs:
   build-test-linux:
     strategy:
       matrix:
-        build_arch: [x86, x64]
+        build_arch: [ x86, x64 ]
         include:
           - build_arch: x64
             gtk_packages: libgtk-4-dev libwebkitgtk-6.0-dev
@@ -54,6 +54,21 @@ jobs:
           PREMAKE_NO_PROMPT: 1
         run: ./generate.sh
 
+      - name: Prepare pnpm
+        run: |
+          npm install --global corepack@latest
+          corepack enable pnpm
+
+      - name: Lint pnpm
+        run: |
+          pnpm i
+          pnpm run lint
+
+      - name: Build pnpm
+        run: |
+          pnpm i
+          pnpm run build
+
       - name: Build
         run: |
           [[ "${{ matrix.build_arch }}" == "x86" ]] && export PKG_CONFIG_PATH=/usr/lib/i386-linux-gnu/pkgconfig:$PKG_CONFIG_PATH || true
@@ -63,7 +78,7 @@ jobs:
   build-test-windows:
     strategy:
       matrix:
-        build_arch: [x86, x64]
+        build_arch: [ x86, x64 ]
         include:
           - build_arch: x86
             msbuild_config: Win32
@@ -88,6 +103,21 @@ jobs:
         env:
           PREMAKE_NO_PROMPT: 1
         run: ./generate.bat
+
+      - name: Prepare pnpm
+        run: |
+          npm install --global corepack@latest
+          corepack enable pnpm
+
+      - name: Lint pnpm
+        run: |
+          pnpm i
+          pnpm run lint
+
+      - name: Build pnpm
+        run: |
+          pnpm i
+          pnpm run build
 
       - name: Build
         run: msbuild /m /p:Configuration=Release /p:Platform=${{ matrix.msbuild_config }} build

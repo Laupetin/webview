@@ -128,6 +128,7 @@ namespace webview
       virtual noresult on_window_opened_impl() = 0;
 
       noresult call_plugin_setup_window(window& window, const plugin_window_context& context) const;
+      noresult call_plugin_setup_environment_options(window& window, void* environment_options) const;
       void on_window_destroyed() const;
 
       virtual window* downcast_this() = 0;

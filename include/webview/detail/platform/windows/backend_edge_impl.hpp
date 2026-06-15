@@ -33,6 +33,7 @@
 #include <shlobj.h>
 #include <shlwapi.h>
 #include <windows.h>
+#include <wrl/event.h>
 
 #ifdef _MSC_VER
 #pragma comment(lib, "ole32.lib")
@@ -713,7 +714,16 @@ namespace webview::detail
     m_com_handler->set_attempt_handler(
         [&]
         {
-          return m_webview2_loader.create_environment_with_options(nullptr, user_data_folder, nullptr, m_com_handler);
+          const auto options = Microsoft::WRL::Make<CoreWebView2EnvironmentOptions>();
+          Microsoft::WRL::ComPtr<ICoreWebView2EnvironmentOptions> interface_options;
+          if (FAILED(options->QueryInterface(IID_PPV_ARGS(&interface_options))))
+            return HRESULT_FROM_WIN32(ERROR_INVALID_STATE);
+
+          const auto result = call_plugin_setup_environment_options(*this, interface_options.Get());
+          if (!result.has_value())
+            return HRESULT_FROM_WIN32(ERROR_INVALID_STATE);
+
+          return m_webview2_loader.create_environment_with_options(nullptr, user_data_folder, options.Get(), m_com_handler);
         });
     m_com_handler->try_create_environment();
 

@@ -42,7 +42,8 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-#include "WebView2.h" // amalgamate(skip)
+#include "WebView2.h"                   // amalgamate(skip)
+#include "WebView2EnvironmentOptions.h" // amalgamate(skip)
 
 #include <objbase.h>
 #include <windows.h>

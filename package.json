@@ -1,0 +1,29 @@
+{
+  "name": "webview",
+  "version": "1.0.0",
+  "private": "true",
+  "homepage": "https://github.com/Laupetin/webview#readme",
+  "bugs": {
+    "url": "https://github.com/Laupetin/webview/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Laupetin/webview.git"
+  },
+  "license": "MIT",
+  "packageManager": "pnpm@11.7.0",
+  "type": "module",
+  "directories": {
+    "example": "examples"
+  },
+  "devDependencies": {
+    "npm-run-all2": "catalog:"
+  },
+  "scripts": {
+    "build:examples": "pnpm --filter './examples/**' run build",
+    "build:packages": "pnpm --filter './packages/**' run build",
+    "build": "run-s build:packages build:examples",
+    "format": "pnpm --filter './**' run format",
+    "lint": "pnpm --filter './**' run lint"
+  }
+}
