@@ -1,8 +1,9 @@
 {
   "name": "@laupetin/vite-plugin-cpp-header",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "type": "module",
   "homepage": "https://github.com/Laupetin/webview#readme",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/Laupetin/webview/issues"
   },
