@@ -2,6 +2,15 @@
   "name": "@laupetin/vite-plugin-cpp-header",
   "version": "1.0.0",
   "type": "module",
+  "homepage": "https://github.com/Laupetin/webview#readme",
+  "bugs": {
+    "url": "https://github.com/Laupetin/webview/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Laupetin/webview.git",
+    "directory": "packages/vite-plugin-cpp-header"
+  },
   "files": [
     "dist"
   ],
