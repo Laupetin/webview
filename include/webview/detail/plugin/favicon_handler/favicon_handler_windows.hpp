@@ -15,6 +15,10 @@
 #include <gdiplus.h>
 #include <wrl/event.h>
 
+#ifdef _MSC_VER
+#pragma comment(lib, "gdiplus.lib")
+#endif
+
 namespace webview
 {
   namespace detail

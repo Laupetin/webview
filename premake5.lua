@@ -128,22 +128,8 @@ workspace "Webview"
             }
 
             filter { "system:windows" }
-                links {
-                    "WebView2LoaderStatic",
-                    "gdiplus.lib"
-                }   
                 includedirs {
                     "build/ms-webview2/build/native/include"
-                }
-            filter {}
-            filter { "system:windows", "platforms:x86"}
-                libdirs {
-                    "build/ms-webview2/build/native/x86"
-                }
-            filter {}
-            filter { "system:windows", "platforms:x64" }
-                libdirs {
-                    "build/ms-webview2/build/native/x64"
                 }
             filter {}
 
