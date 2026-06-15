@@ -67,8 +67,8 @@ namespace webview
 
   WEBVIEW_IMPL void split_asset_request_uri(const std::string& uri, const std::string& protocol_name, std::string& out_hostname, std::string& out_asset)
   {
-    auto trim_start_count = protocol_name.size() + std::char_traits<char>::length("://");
-    auto trim_end_count = 0;
+    size_t trim_start_count = protocol_name.size() + std::char_traits<char>::length("://");
+    size_t trim_end_count = 0u;
 
     auto hostname_end = uri.find_first_of('/', trim_start_count);
     if (hostname_end == std::string::npos)
@@ -78,6 +78,13 @@ namespace webview
     trim_start_count = hostname_end;
     if (uri[trim_start_count] == '/')
       trim_start_count++;
+
+    const auto anchor_start = uri.find_first_of('#', trim_start_count);
+    if (anchor_start != std::string::npos)
+      trim_end_count = std::max<size_t>(uri.size() - anchor_start, trim_end_count);
+    const auto args_start = uri.find_first_of('?', trim_start_count);
+    if (args_start != std::string::npos)
+      trim_end_count = std::max<size_t>(uri.size() - args_start, trim_end_count);
 
     out_asset = uri.substr(trim_start_count, uri.size() - trim_end_count - trim_start_count);
   }
