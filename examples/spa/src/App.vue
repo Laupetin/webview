@@ -1,11 +1,27 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
+import { getBinds, getEvents } from "@webwindowed/web-api";
 
 const counter = ref(0);
-const path = ref(undefined);
+const tick = ref(0);
+const pathValue = ref<string | undefined>(undefined);
 
-window.webwindowedBinds.path().then((res) => {
-  path.value = res;
+type Binds = {
+  path(): Promise<string>;
+};
+type Events = {
+  tick: number;
+};
+
+const { path } = getBinds<Binds>();
+const { addEventListener } = getEvents<Events>();
+
+path().then((res) => {
+  pathValue.value = res;
+});
+
+addEventListener("tick", (value) => {
+  tick.value = value;
 });
 
 function onIncrement() {
@@ -34,8 +50,15 @@ function onDecrement() {
       <h3>Demonstration of binds:</h3>
       <div>
         <div>C++ has the following working directory:</div>
-        <div v-if="path">{{ path }}</div>
+        <div v-if="pathValue">{{ pathValue }}</div>
         <div v-else><i>loading</i></div>
+      </div>
+    </div>
+    <div>
+      <h3>Demonstration of events:</h3>
+      <div>
+        <div>C++ emits ticks as events:</div>
+        <div>{{ tick }}</div>
       </div>
     </div>
   </main>
