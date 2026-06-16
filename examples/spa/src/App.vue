@@ -4,6 +4,9 @@ import { getBinds, getEvents } from "@webwindowed/web-api";
 
 const counter = ref(0);
 const tick = ref(0);
+const name = ref("");
+const greetingText = ref("");
+const luckyNumber = ref<number | undefined>(undefined);
 const pathValue = ref<string | undefined>(undefined);
 
 type Binds = {
@@ -29,6 +32,18 @@ function onIncrement() {
 }
 function onDecrement() {
   counter.value--;
+}
+
+function onGreetClick() {
+  const url = new URL("/api/dynamic", String(window.location));
+  url.searchParams.set("name", name.value);
+  fetch(url, {
+    method: "GET",
+  }).then(async (res) => {
+    const data = (await res.json()) as { text: string; number: number };
+    greetingText.value = data.text;
+    luckyNumber.value = data.number;
+  });
 }
 </script>
 
@@ -59,6 +74,18 @@ function onDecrement() {
       <div>
         <div>C++ emits ticks as events:</div>
         <div>{{ tick }}</div>
+      </div>
+    </div>
+    <div>
+      <h3>Demonstration of dynamic assets:</h3>
+      <div>
+        <div>C++ has the following working directory:</div>
+        <input v-model="name" type="text" placeholder="Who should I greet?" />
+        <button @click="onGreetClick">Send</button>
+        <div>{{ greetingText }}</div>
+        <div v-if="luckyNumber !== undefined">
+          Lucky number: {{ luckyNumber }}
+        </div>
       </div>
     </div>
   </main>

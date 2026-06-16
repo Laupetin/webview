@@ -106,8 +106,6 @@ function writeHeader(
     fd,
     `#pragma once
 
-#include <webwindowed/plugin/asset_handler.hpp>
-
 `,
   );
 
@@ -146,7 +144,14 @@ constexpr auto VITE_DEV_SERVER_PORT = ${devServerPort ? String(devServerPort) : 
     fs.writeSync(
       fd,
       `
-static inline const webwindowed::asset VITE_ASSETS[] {
+struct UiFile
+{
+    const char* filename;
+    const void* data;
+    const size_t dataSize;
+};
+
+static inline const UiFile VITE_ASSETS[] {
 `,
     );
 

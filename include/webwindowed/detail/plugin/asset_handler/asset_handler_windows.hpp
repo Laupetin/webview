@@ -18,20 +18,21 @@
 
 namespace webwindowed
 {
-  WEBWINDOWED_IMPL std::wstring headers_for_asset_name(const std::string& assetName, const size_t contentLength)
+  WEBWINDOWED_IMPL std::wstring headers_for_asset_name(const std::string& asset_name, const size_t content_length, const std::string& user_content_type)
   {
     std::wstringstream wss;
 
-    wss << std::format(L"Content-Length: {}\n", contentLength);
-    wss << std::format(L"Content-Type: {}", detail::widen_string(get_mime_type_for_file_name(assetName)));
+    wss << std::format(L"Content-Length: {}\n", content_length);
+    wss << std::format(L"Content-Type: {}", detail::widen_string(user_content_type.empty() ? get_mime_type_for_file_name(asset_name) : user_content_type));
 
     return wss.str();
   }
 
-  WEBWINDOWED_IMPL HRESULT HandleResourceRequested(ICoreWebView2_22* core22,
-                                                   IUnknown* args,
-                                                   const std::string& protocol_name,
-                                                   const std::unordered_map<std::string, asset>& asset_lookup)
+  WEBWINDOWED_IMPL HRESULT handle_resource_requested(ICoreWebView2_22* core22,
+                                                     IUnknown* args,
+                                                     const std::string& protocol_name,
+                                                     std::unordered_map<std::string, static_asset> static_asset_lookup,
+                                                     std::unordered_map<std::string, dynamic_asset> dynamic_asset_lookup)
   {
     Microsoft::WRL::ComPtr<ICoreWebView2WebResourceRequestedEventArgs2> web_resource_request_args;
     if (SUCCEEDED(args->QueryInterface(IID_PPV_ARGS(&web_resource_request_args))))
@@ -67,23 +68,51 @@ namespace webwindowed
 
       std::string hostname;
       std::string asset;
-      split_asset_request_uri(uri, protocol_name, hostname, asset);
+      std::string query;
+      split_asset_request_uri(uri, protocol_name, hostname, asset, query);
 
       if (hostname == "localhost")
       {
-        const auto found_ui_file = asset_lookup.find(asset);
-        if (found_ui_file != asset_lookup.end())
+        const auto found_static_file = static_asset_lookup.find(asset);
+        if (found_static_file != static_asset_lookup.end())
         {
-          const Microsoft::WRL::ComPtr<IStream> response_stream =
-              SHCreateMemStream(static_cast<const BYTE*>(found_ui_file->second.data), static_cast<UINT>(found_ui_file->second.data_size));
+          const void* data;
+          size_t data_size;
+          found_static_file->second.get_data(data, data_size);
 
-          const auto headers = headers_for_asset_name(asset, found_ui_file->second.data_size);
+          const Microsoft::WRL::ComPtr<IStream> response_stream = SHCreateMemStream(static_cast<const BYTE*>(data), static_cast<UINT>(data_size));
+
+          const auto headers = headers_for_asset_name(asset, data_size, std::string());
           if (FAILED(environment->CreateWebResourceResponse(response_stream.Get(), 200, L"OK", headers.data(), &response)))
-          {
             return S_FALSE;
-          }
 
           file_found = true;
+        }
+
+        if (!file_found)
+        {
+          const auto found_dynamic_file = dynamic_asset_lookup.find(asset);
+          if (found_dynamic_file != dynamic_asset_lookup.end())
+          {
+            auto failed = false;
+            dynamic_asset_request dyn_request(std::move(query));
+            dynamic_asset_response dyn_response(
+                [&](const int code, const void* data, const size_t data_size, const std::string& content_type)
+                {
+                  const Microsoft::WRL::ComPtr<IStream> response_stream = SHCreateMemStream(static_cast<const BYTE*>(data), static_cast<UINT>(data_size));
+
+                  const auto headers = headers_for_asset_name(asset, data_size, content_type);
+                  if (FAILED(environment->CreateWebResourceResponse(response_stream.Get(), code, L"OK", headers.data(), &response)))
+                    failed = true;
+                  else
+                    file_found = true;
+                });
+
+            found_dynamic_file->second.call(dyn_request, dyn_response);
+
+            if (failed)
+              return S_FALSE;
+          }
         }
       }
 
@@ -132,7 +161,8 @@ namespace webwindowed
     if (FAILED(core->add_WebResourceRequested(Microsoft::WRL::Callback<ICoreWebView2WebResourceRequestedEventHandler>(
                                                   [core22, this](ICoreWebView2* sender, IUnknown* args) -> HRESULT
                                                   {
-                                                    return HandleResourceRequested(core22.Get(), args, m_protocol_name, m_asset_lookup);
+                                                    return handle_resource_requested(
+                                                        core22.Get(), args, m_protocol_name, m_static_asset_lookup, m_dynamic_asset_lookup);
                                                   })
                                                   .Get(),
                                               &token)))
@@ -150,13 +180,17 @@ namespace webwindowed
     if (FAILED(options->QueryInterface(IID_PPV_ARGS(&options4))))
       return std::unexpected("Failed to get options4");
 
-    std::wstring wProtocol = detail::widen_string(m_protocol_name);
-    auto customSchemeRegistration = Microsoft::WRL::Make<CoreWebView2CustomSchemeRegistration>(wProtocol.c_str());
-    customSchemeRegistration->put_TreatAsSecure(TRUE);
-    customSchemeRegistration->put_HasAuthorityComponent(TRUE);
+    const std::wstring wide_protocol = detail::widen_string(m_protocol_name);
+    const auto custom_scheme_registration = Microsoft::WRL::Make<CoreWebView2CustomSchemeRegistration>(wide_protocol.c_str());
+    if (FAILED(custom_scheme_registration->put_TreatAsSecure(TRUE)))
+      return std::unexpected("Failed to set treatAsSecure");
 
-    ICoreWebView2CustomSchemeRegistration* registrations[]{customSchemeRegistration.Get()};
-    options4->SetCustomSchemeRegistrations(std::extent_v<decltype(registrations)>, registrations);
+    if (FAILED(custom_scheme_registration->put_HasAuthorityComponent(TRUE)))
+      return std::unexpected("Failed to set hasAuthorityComponent");
+
+    ICoreWebView2CustomSchemeRegistration* registrations[]{custom_scheme_registration.Get()};
+    if (FAILED(options4->SetCustomSchemeRegistrations(std::extent_v<decltype(registrations)>, registrations)))
+      return std::unexpected("Failed to set custom scheme registrations");
 
     return {};
   }
