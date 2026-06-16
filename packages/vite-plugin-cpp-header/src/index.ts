@@ -106,7 +106,7 @@ function writeHeader(
     fd,
     `#pragma once
 
-#include <webview/plugin/asset_handler.hpp>
+#include <webwindowed/plugin/asset_handler.hpp>
 
 `,
   );
@@ -146,7 +146,7 @@ constexpr auto VITE_DEV_SERVER_PORT = ${devServerPort ? String(devServerPort) : 
     fs.writeSync(
       fd,
       `
-static inline const webview::asset VITE_ASSETS[] {
+static inline const webwindowed::asset VITE_ASSETS[] {
 `,
     );
 

@@ -49,7 +49,7 @@ end
 -- ==================
 -- Workspace
 -- ==================
-workspace "Webview"
+workspace "webwindowed"
     location "build"
     objdir "%{wks.location}/obj"
     symbols "On"
@@ -99,7 +99,7 @@ workspace "Webview"
         installWebview2()
     end
     
-    project("webview")
+    project("webwindowed")
         targetdir("%{wks.location}/%{cfg.buildcfg}_%{cfg.platform}")
         location "%{wks.location}"
         kind "Utility"

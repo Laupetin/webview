@@ -1,4 +1,4 @@
-﻿#ifdef WEBVIEW_STATIC_LIB
-#define WEBVIEW_INCLUDE_IMPL
-#include <webview/plugin/title_handler.hpp>
+﻿#ifdef WEBWINDOWED_STATIC_LIB
+#define WEBWINDOWED_INCLUDE_IMPL
+#include <webwindowed/plugin/title_handler.hpp>
 #endif

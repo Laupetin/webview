@@ -1,17 +1,17 @@
-#include "webview/webview.hpp"
+#include "webwindowed/webwindowed.hpp"
 
 #include <format>
 #include <iostream>
 
-#ifdef WEBVIEW_PLATFORM_WINDOWS
+#ifdef WEBWINDOWED_PLATFORM_WINDOWS
 #include <windows.h>
 #endif
 
 namespace
 {
-  std::shared_ptr<webview::window> create_sample_window(const int index)
+  std::shared_ptr<webwindowed::window> create_sample_window(const int index)
   {
-    auto w = std::make_shared<webview::window>();
+    auto w = std::make_shared<webwindowed::window>();
     w->set_title(std::format("Multi window {}", index));
     w->set_window_size(480, 320);
     w->set_debug(true);
@@ -26,7 +26,7 @@ namespace
   }
 } // namespace
 
-#ifdef WEBVIEW_PLATFORM_WINDOWS
+#ifdef WEBWINDOWED_PLATFORM_WINDOWS
 int WINAPI WinMain(HINSTANCE /*hInst*/, HINSTANCE /*hPrevInst*/, LPSTR /*lpCmdLine*/, int /*nCmdShow*/)
 {
 #else
@@ -34,8 +34,8 @@ int main()
 {
 #endif
 
-  webview::app app;
-  app.set_shutdown_behaviour(webview::app_shutdown_behaviour::on_all_windows_closed);
+  webwindowed::app app;
+  app.set_shutdown_behaviour(webwindowed::app_shutdown_behaviour::on_all_windows_closed);
 
   auto w0 = create_sample_window(0);
 
