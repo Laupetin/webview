@@ -12,6 +12,7 @@
 #include <filesystem>
 #include <iostream>
 #include <string>
+#include <thread>
 
 #ifdef _WIN32
 int WINAPI WinMain(HINSTANCE /*hInst*/, HINSTANCE /*hPrevInst*/, LPSTR /*lpCmdLine*/, int /*nCmdShow*/)
@@ -20,7 +21,7 @@ int WINAPI WinMain(HINSTANCE /*hInst*/, HINSTANCE /*hPrevInst*/, LPSTR /*lpCmdLi
 int main()
 {
 #endif
-  auto w = std::make_unique<webwindowed::window>();
+  const auto w = std::make_shared<webwindowed::window>();
   w->set_debug(true);
   w->set_title("Single page application example");
   w->set_window_min(200, 200);
@@ -46,6 +47,17 @@ int main()
                                       return std::format("\"{}\"", current_path);
                                     });
   w->set_commands(commands_builder.build());
+  
+  bool keep_ticking= true;
+  std::thread t([&]
+  {
+    size_t tick = 0;
+    while (keep_ticking)
+    {
+      w->notify("tick", std::to_string(tick++));
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+  });
 
 #ifdef _DEBUG
   auto result = w->navigate(VITE_DEV_SERVER ? std::format("http://localhost:{}", VITE_DEV_SERVER_PORT) : asset_handler_plugin->get_url_for_asset("index.html"));
@@ -58,12 +70,15 @@ int main()
     return 1;
   }
 
-  result = app.run(std::move(w));
+  result = app.run(w);
   if (!result.has_value())
   {
     std::cerr << "Failed to run app: " << result.error().message() << std::endl;
     return 1;
   }
+  
+  keep_ticking = false;
+  t.join();
 
   return 0;
 }

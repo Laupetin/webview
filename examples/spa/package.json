@@ -6,14 +6,19 @@
     "vue": "catalog:"
   },
   "devDependencies": {
-    "@laupetin/vite-plugin-cpp-header": "workspace:",
+    "@webwindowed/vite-plugin-cpp-header": "workspace:",
+    "@webwindowed/web-api": "workspace:",
+    "@tsconfig/node24": "catalog:",
     "@vitejs/plugin-vue": "catalog:",
+    "@vue/tsconfig": "catalog:",
     "prettier": "catalog:",
-    "vite": "catalog:"
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vue-tsc": "catalog:"
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && vue-tsc --build",
     "preview": "vite preview",
     "format": "prettier --write .",
     "lint": "prettier --check ."
