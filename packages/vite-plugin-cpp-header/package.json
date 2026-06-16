@@ -2,14 +2,14 @@
   "name": "@laupetin/vite-plugin-cpp-header",
   "version": "1.0.3",
   "type": "module",
-  "homepage": "https://github.com/Laupetin/webview#readme",
+  "homepage": "https://github.com/Laupetin/webwindowed#readme",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Laupetin/webview/issues"
+    "url": "https://github.com/Laupetin/webwindowed/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Laupetin/webview.git",
+    "url": "git+https://github.com/Laupetin/webwindowed.git",
     "directory": "packages/vite-plugin-cpp-header"
   },
   "files": [

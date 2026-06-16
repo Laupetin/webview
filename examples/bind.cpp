@@ -1,4 +1,4 @@
-#include "webview/webview.hpp"
+#include "webwindowed/webwindowed.hpp"
 
 #include <chrono>
 #include <iostream>
@@ -37,15 +37,15 @@ body {
     "computeResult"
   ]);
   ui.increment.addEventListener("click", async () => {
-    ui.counterResult.textContent = await window.webviewBinds.count(1);
+    ui.counterResult.textContent = await window.webwindowedBinds.count(1);
   });
   ui.decrement.addEventListener("click", async () => {
-    ui.counterResult.textContent = await window.webviewBinds.count(-1);
+    ui.counterResult.textContent = await window.webwindowedBinds.count(-1);
   });
   ui.compute.addEventListener("click", async () => {
     ui.compute.disabled = true;
     ui.computeResult.textContent = "(pending)";
-    ui.computeResult.textContent = await window.webviewBinds.compute(6, 7);
+    ui.computeResult.textContent = await window.webwindowedBinds.compute(6, 7);
     ui.compute.disabled = false;
   });
 </script>
@@ -60,18 +60,18 @@ int main()
 #endif
   long count = 0;
 
-  auto w = std::make_unique<webview::window>();
+  auto w = std::make_unique<webwindowed::window>();
   w->set_debug(true);
   w->set_title("Bind Example");
   w->set_window_min(200, 200);
   w->set_window_max(600, 600);
   w->set_window_size(480, 320);
 
-  webview::commands_builder c;
+  webwindowed::commands_builder c;
 
   // A binding that counts up or down and immediately returns the new value.
   c.add_command_sync("count",
-                     [&](webview::window& calling_window, std::string message_json_str) -> std::string
+                     [&](webwindowed::window& calling_window, std::string message_json_str) -> std::string
                      {
                        // Imagine that req is properly parsed or use your own JSON parser.
                        const auto direction = std::stol(message_json_str.substr(1, message_json_str.size() - 1));
@@ -80,7 +80,7 @@ int main()
 
   // A binding that creates a new thread and returns the result at a later time.
   c.add_command_async("compute",
-                      [&](std::string promise_id, webview::window& calling_window, std::string message_json_str)
+                      [&](std::string promise_id, webwindowed::window& calling_window, std::string message_json_str)
                       {
                         // Create a thread and forget about it for the sake of simplicity.
                         std::thread(
@@ -105,7 +105,7 @@ int main()
     return 1;
   }
 
-  webview::app app;
+  webwindowed::app app;
   result = app.run(std::move(w));
   if (!result.has_value())
   {

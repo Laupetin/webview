@@ -1,5 +1,5 @@
-#include "webview/plugin/favicon_handler.hpp"
-#include "webview/webview.hpp"
+#include "webwindowed/plugin/favicon_handler.hpp"
+#include "webwindowed/webwindowed.hpp"
 
 #include <chrono>
 #include <iostream>
@@ -14,7 +14,7 @@ int main()
 {
 #endif
 
-  auto w = std::make_unique<webview::window>();
+  auto w = std::make_unique<webwindowed::window>();
   w->set_debug(true);
   w->set_title("Favicon handler example");
   w->set_window_min(200, 200);
@@ -28,9 +28,9 @@ int main()
     return 1;
   }
 
-  webview::app app;
+  webwindowed::app app;
 
-  app.register_plugin(std::make_shared<webview::favicon_handler_plugin>());
+  app.register_plugin(std::make_shared<webwindowed::favicon_handler_plugin>());
 
   result = app.run(std::move(w));
   if (!result.has_value())

@@ -4,7 +4,7 @@ import { ref } from "vue";
 const counter = ref(0);
 const path = ref(undefined);
 
-window.webviewBinds.path().then((res) => {
+window.webwindowedBinds.path().then((res) => {
   path.value = res;
 });
 

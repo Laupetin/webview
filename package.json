@@ -1,14 +1,14 @@
 {
-  "name": "webview",
+  "name": "webwindowed",
   "version": "1.0.0",
   "private": "true",
-  "homepage": "https://github.com/Laupetin/webview#readme",
+  "homepage": "https://github.com/Laupetin/webwindowed#readme",
   "bugs": {
-    "url": "https://github.com/Laupetin/webview/issues"
+    "url": "https://github.com/Laupetin/webwindowed/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Laupetin/webview.git"
+    "url": "git+https://github.com/Laupetin/webwindowed.git"
   },
   "license": "MIT",
   "packageManager": "pnpm@11.7.0",
