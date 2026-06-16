@@ -52,11 +52,15 @@ namespace webwindowed::detail
 
   WEBWINDOWED_IMPL noresult gtk_webkit_engine::eval(const std::string& js)
   {
-    // URI is null before content has begun loading.
-    if (!webkit_web_view_get_uri(WEBKIT_WEB_VIEW(m_webview)))
-      return {};
+    // Might be null in case of termination
+    if (m_webview)
+    {
+      // URI is null before content has begun loading.
+      if (!webkit_web_view_get_uri(WEBKIT_WEB_VIEW(m_webview)))
+        return {};
 
-    webkit_web_view_evaluate_javascript(WEBKIT_WEB_VIEW(m_webview), js.c_str(), static_cast<gssize>(js.size()), nullptr, nullptr, nullptr, nullptr, nullptr);
+      webkit_web_view_evaluate_javascript(WEBKIT_WEB_VIEW(m_webview), js.c_str(), static_cast<gssize>(js.size()), nullptr, nullptr, nullptr, nullptr, nullptr);
+    }
     return {};
   }
 

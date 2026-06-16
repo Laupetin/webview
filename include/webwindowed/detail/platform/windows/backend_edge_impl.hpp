@@ -302,12 +302,17 @@ namespace webwindowed::detail
 
   WEBWINDOWED_IMPL noresult win32_edge_engine::eval(const std::string& js)
   {
-    // TODO: Skip if no content has begun loading yet. Can't check with
-    //       ICoreWebView2::get_Source because it returns "about:blank".
-    const auto wide_js = widen_string(js);
-    const auto res = m_webview->ExecuteScript(wide_js.c_str(), nullptr);
-    if (FAILED(res))
-      return std::unexpected(error_info{webwindowed_error::UNSPECIFIED, "ExecuteScript failed"});
+    // Might be null in case of termination
+    if (m_webview)
+    {
+      // TODO: Skip if no content has begun loading yet. Can't check with
+      //       ICoreWebView2::get_Source because it returns "about:blank".
+      const auto wide_js = widen_string(js);
+      
+      const auto res = m_webview->ExecuteScript(wide_js.c_str(), nullptr);
+      if (FAILED(res))
+        return std::unexpected(error_info{webwindowed_error::UNSPECIFIED, "ExecuteScript failed"});
+    }
 
     return {};
   }
