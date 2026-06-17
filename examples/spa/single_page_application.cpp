@@ -34,6 +34,10 @@ int main()
   const auto asset_handler_plugin = std::make_shared<webwindowed::asset_handler_plugin>();
   asset_handler_plugin->set_protocol_name("sample-protocol");
 
+  // Set this if you need to access dynamic assets from somewhere else other than static assets
+  // e.g. a dev server.
+  asset_handler_plugin->set_allow_all_origins(true);
+
   for (const auto& asset : VITE_ASSETS)
   {
     asset_handler_plugin->add_static_asset(webwindowed::static_asset(asset.filename, asset.data, asset.dataSize));

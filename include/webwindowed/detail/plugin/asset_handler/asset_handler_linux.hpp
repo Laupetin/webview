@@ -45,9 +45,22 @@ namespace webwindowed
           found_static_file->second.get_data(data, data_size);
 
           auto* stream = g_memory_input_stream_new_from_data(data, static_cast<gssize>(data_size), nullptr);
+          auto* webkit_response = webkit_uri_scheme_response_new(stream, static_cast<gint64>(data_size));
+          webkit_uri_scheme_response_set_status(webkit_response, 200, "OK");
 
-          webkit_uri_scheme_request_finish(
-              request, stream, static_cast<gint64>(data_size), get_mime_type_for_file_name(found_static_file->second.get_file_name()));
+          const auto content_type = get_mime_type_for_file_name(found_static_file->second.get_file_name());
+          webkit_uri_scheme_response_set_content_type(webkit_response, content_type);
+
+          auto* soup_headers = soup_message_headers_new(SOUP_MESSAGE_HEADERS_RESPONSE);
+          soup_message_headers_replace(soup_headers, "Content-Type", content_type);
+
+          if (self->m_allow_all_origins)
+            soup_message_headers_replace(soup_headers, "Access-Control-Allow-Origin", "*");
+
+          webkit_uri_scheme_response_set_http_headers(webkit_response, soup_headers);
+          webkit_uri_scheme_request_finish_with_response(request, webkit_response);
+
+          g_object_unref(webkit_response);
           g_object_unref(stream);
 
           file_found = true;
@@ -67,11 +80,23 @@ namespace webwindowed
                   auto* webkit_response = webkit_uri_scheme_response_new(stream, static_cast<gint64>(data_size));
                   webkit_uri_scheme_response_set_status(webkit_response, static_cast<guint>(code), "OK");
 
+                  auto* soup_headers = soup_message_headers_new(SOUP_MESSAGE_HEADERS_RESPONSE);
                   if (content_type.empty())
-                    webkit_uri_scheme_response_set_content_type(webkit_response, get_mime_type_for_file_name(found_dynamic_file->second.get_file_name()));
+                  {
+                    const auto generated_content_type = get_mime_type_for_file_name(found_dynamic_file->second.get_file_name());
+                    webkit_uri_scheme_response_set_content_type(webkit_response, generated_content_type);
+                    soup_message_headers_replace(soup_headers, "Content-Type", generated_content_type);
+                  }
                   else
+                  {
                     webkit_uri_scheme_response_set_content_type(webkit_response, content_type.c_str());
+                    soup_message_headers_replace(soup_headers, "Content-Type", content_type.c_str());
+                  }
 
+                  if (self->m_allow_all_origins)
+                    soup_message_headers_replace(soup_headers, "Access-Control-Allow-Origin", "*");
+
+                  webkit_uri_scheme_response_set_http_headers(webkit_response, soup_headers);
                   webkit_uri_scheme_request_finish_with_response(request, webkit_response);
 
                   g_object_unref(webkit_response);
@@ -87,9 +112,19 @@ namespace webwindowed
 
       if (!file_found)
       {
-        GError* error = g_error_new(G_SPAWN_ERROR, 123, "Could not find %s.", asset.c_str());
-        webkit_uri_scheme_request_finish_error(request, error);
-        g_error_free(error);
+        auto* stream = g_memory_input_stream_new();
+        auto* webkit_response = webkit_uri_scheme_response_new(stream, 0);
+        webkit_uri_scheme_response_set_status(webkit_response, 404, "Not found");
+
+        auto* soup_headers = soup_message_headers_new(SOUP_MESSAGE_HEADERS_RESPONSE);
+        if (self->m_allow_all_origins)
+          soup_message_headers_replace(soup_headers, "Access-Control-Allow-Origin", "*");
+
+        webkit_uri_scheme_response_set_http_headers(webkit_response, soup_headers);
+        webkit_uri_scheme_request_finish_with_response(request, webkit_response);
+
+        g_object_unref(webkit_response);
+        g_object_unref(stream);
       }
     };
 

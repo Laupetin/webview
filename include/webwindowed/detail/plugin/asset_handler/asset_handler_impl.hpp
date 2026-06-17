@@ -129,13 +129,19 @@ namespace webwindowed
   }
 
   WEBWINDOWED_IMPL asset_handler_plugin::asset_handler_plugin()
-      : m_protocol_name("webwindowed")
+      : m_protocol_name("webwindowed"),
+        m_allow_all_origins(false)
   {
   }
 
   WEBWINDOWED_IMPL const std::string& asset_handler_plugin::get_protocol_name() const
   {
     return m_protocol_name;
+  }
+
+  WEBWINDOWED_IMPL void asset_handler_plugin::set_allow_all_origins(bool allow_all_origins)
+  {
+    m_allow_all_origins = allow_all_origins;
   }
 
   WEBWINDOWED_IMPL void asset_handler_plugin::set_protocol_name(std::string protocol_name)
