@@ -18,9 +18,13 @@
 
 namespace webwindowed
 {
-  WEBWINDOWED_IMPL std::wstring headers_for_asset_name(const std::string& asset_name, const size_t content_length, const std::string& user_content_type)
+  WEBWINDOWED_IMPL std::wstring
+      headers_for_asset_name(const std::string& asset_name, const size_t content_length, const std::string& user_content_type, const bool allow_all_origins)
   {
     std::wstringstream wss;
+
+    if (allow_all_origins)
+      wss << "Access-Control-Allow-Origin: *\n";
 
     wss << std::format(L"Content-Length: {}\n", content_length);
     wss << std::format(L"Content-Type: {}", detail::widen_string(user_content_type.empty() ? get_mime_type_for_file_name(asset_name) : user_content_type));
@@ -31,6 +35,7 @@ namespace webwindowed
   WEBWINDOWED_IMPL HRESULT handle_resource_requested(ICoreWebView2_22* core22,
                                                      IUnknown* args,
                                                      const std::string& protocol_name,
+                                                     const bool allow_all_origins,
                                                      std::unordered_map<std::string, static_asset> static_asset_lookup,
                                                      std::unordered_map<std::string, dynamic_asset> dynamic_asset_lookup)
   {
@@ -82,7 +87,7 @@ namespace webwindowed
 
           const Microsoft::WRL::ComPtr<IStream> response_stream = SHCreateMemStream(static_cast<const BYTE*>(data), static_cast<UINT>(data_size));
 
-          const auto headers = headers_for_asset_name(asset, data_size, std::string());
+          const auto headers = headers_for_asset_name(asset, data_size, std::string(), allow_all_origins);
           if (FAILED(environment->CreateWebResourceResponse(response_stream.Get(), 200, L"OK", headers.data(), &response)))
             return S_FALSE;
 
@@ -101,7 +106,7 @@ namespace webwindowed
                 {
                   const Microsoft::WRL::ComPtr<IStream> response_stream = SHCreateMemStream(static_cast<const BYTE*>(data), static_cast<UINT>(data_size));
 
-                  const auto headers = headers_for_asset_name(asset, data_size, content_type);
+                  const auto headers = headers_for_asset_name(asset, data_size, content_type, allow_all_origins);
                   if (FAILED(environment->CreateWebResourceResponse(response_stream.Get(), code, L"OK", headers.data(), &response)))
                     failed = true;
                   else
@@ -118,7 +123,8 @@ namespace webwindowed
 
       if (!file_found)
       {
-        if (FAILED(environment->CreateWebResourceResponse(nullptr, 404, L"Not found", L"", &response)))
+        if (FAILED(
+                environment->CreateWebResourceResponse(nullptr, 404, L"Not found", allow_all_origins ? L"Access-Control-Allow-Origin: *\n" : L"", &response)))
         {
           return S_FALSE;
         }
@@ -158,14 +164,14 @@ namespace webwindowed
     }
 
     EventRegistrationToken token;
-    if (FAILED(core->add_WebResourceRequested(Microsoft::WRL::Callback<ICoreWebView2WebResourceRequestedEventHandler>(
-                                                  [core22, this](ICoreWebView2* sender, IUnknown* args) -> HRESULT
-                                                  {
-                                                    return handle_resource_requested(
-                                                        core22.Get(), args, m_protocol_name, m_static_asset_lookup, m_dynamic_asset_lookup);
-                                                  })
-                                                  .Get(),
-                                              &token)))
+    if (FAILED(core->add_WebResourceRequested(
+            Microsoft::WRL::Callback<ICoreWebView2WebResourceRequestedEventHandler>(
+                [core22, this](ICoreWebView2* sender, IUnknown* args) -> HRESULT
+                {
+                  return handle_resource_requested(core22.Get(), args, m_protocol_name, m_allow_all_origins, m_static_asset_lookup, m_dynamic_asset_lookup);
+                })
+                .Get(),
+            &token)))
     {
       return std::unexpected("Failed to add resource requested filter");
     }
@@ -187,6 +193,10 @@ namespace webwindowed
 
     if (FAILED(custom_scheme_registration->put_HasAuthorityComponent(TRUE)))
       return std::unexpected("Failed to set hasAuthorityComponent");
+
+    const wchar_t* allowed_origins[]{L"*"};
+    if (FAILED(custom_scheme_registration->SetAllowedOrigins(1, allowed_origins)))
+      return std::unexpected("Failed to set allowedOrigins");
 
     ICoreWebView2CustomSchemeRegistration* registrations[]{custom_scheme_registration.Get()};
     if (FAILED(options4->SetCustomSchemeRegistrations(std::extent_v<decltype(registrations)>, registrations)))

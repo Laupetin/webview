@@ -79,6 +79,7 @@ public:
 
     [[nodiscard]] const std::string& get_protocol_name() const;
     void set_protocol_name(std::string protocol_name);
+    void set_allow_all_origins(bool allow_all_origins);
 
     void add_static_asset(static_asset static_asset);
     void add_dynamic_asset(dynamic_asset dynamic_asset);
@@ -90,6 +91,7 @@ public:
 
 private:
     std::string m_protocol_name;
+    bool m_allow_all_origins;
     std::unordered_map<std::string, static_asset> m_static_asset_lookup;
     std::unordered_map<std::string, dynamic_asset> m_dynamic_asset_lookup;
   };
