@@ -63,6 +63,8 @@ namespace webwindowed::detail
       m_main_window = std::move(window);
     }
 
+    result = run_loop();
+
     if (m_main_window)
       m_main_window->on_app_closed();
 
