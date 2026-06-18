@@ -28,7 +28,6 @@ namespace webwindowed::detail
 
   WEBWINDOWED_IMPL noresult app_base::open_window(std::shared_ptr<window> window)
   {
-    webwindowed::window* window_ptr = window.get();
     {
       std::lock_guard lock(m_window_mutex);
       m_windows.emplace_back(std::move(window));
@@ -64,13 +63,17 @@ namespace webwindowed::detail
       m_main_window = std::move(window);
     }
 
-    return run_loop();
+    if (m_main_window)
+      m_main_window->on_app_closed();
+
+    for (auto& remaining_window : m_windows)
+      remaining_window->on_app_closed();
+
+    return result;
   }
 
   WEBWINDOWED_IMPL void app_base::terminate()
   {
-    m_windows.clear();
-    m_main_window.reset();
     m_stop_run_loop = true;
   }
 

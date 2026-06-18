@@ -438,6 +438,11 @@ namespace webwindowed::detail
     return m_app->on_plugin_setup_environment_options(window, environment_options);
   }
 
+  WEBWINDOWED_IMPL void window_base::on_app_closed()
+  {
+    m_app = nullptr;
+  }
+
   WEBWINDOWED_IMPL void window_base::on_window_destroyed() const
   {
     if (m_app)
