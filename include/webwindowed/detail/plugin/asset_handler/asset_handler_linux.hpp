@@ -75,7 +75,15 @@ namespace webwindowed
             dynamic_asset_response dyn_response(
                 [&](const int code, const void* data, const size_t data_size, const std::string& content_type)
                 {
-                  auto* stream = g_memory_input_stream_new_from_data(data, static_cast<gssize>(data_size), nullptr);
+                  auto data_copy = new uint8_t[data_size];
+                  memcpy(data_copy, data, data_size);
+                  auto* stream = g_memory_input_stream_new_from_data(
+                      data_copy,
+                      static_cast<gssize>(data_size),
+                      +[](gpointer data)
+                      {
+                        delete[] static_cast<uint8_t*>(data);
+                      });
 
                   auto* webkit_response = webkit_uri_scheme_response_new(stream, static_cast<gint64>(data_size));
                   webkit_uri_scheme_response_set_status(webkit_response, static_cast<guint>(code), "OK");
